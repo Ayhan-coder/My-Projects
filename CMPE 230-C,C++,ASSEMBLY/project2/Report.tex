@@ -1,0 +1,272 @@
+\documentclass[11pt]{article}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage[a4paper, margin=1in]{geometry}
+
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Spring 2025}
+\lhead{Systems Programming}
+\cfoot{\thepage}
+
+\title{Project Report \\ EvoChirp: Birdsong Evolution Simulator \\ \large{Systems Programming -- Spring 2025}}
+\author{Ali Ayhan Gunder, 2021400219 \\ Yunus Emre Ozturk, 2022400204}
+\date{May 11, 2025}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+This project implements a GNU Assembly-based simulator called \textbf{EvoChirp}, which models the evolution of bird songs across generations. Inspired by natural avian communication systems, the program interprets a structured input expression composed of species, notes, and operators to simulate species-specific song transformations. Each bird species---Sparrow, Warbler, and Nightingale---responds to the same input in uniquely defined evolutionary ways. This program emphasizes control flow, pointer arithmetic, string processing, and low-level system programming.
+
+\subsection{Problem Statement}
+Birdsong plays a vital role in mating, signaling, and communication. In this simulation, the input represents a bird species and an evolutionary song expression. The program applies each operator to the current song based on the species rules and outputs the song's state after every transformation.
+
+\subsection{Objectives}
+\begin{itemize}[noitemsep]
+    \item Develop a GNU assembly program to simulate song evolution.
+    \item Implement per-species behavior for four operators: + (merge), - (reduce), * (repeat), H (harmonize).
+    \item Print the song state after each generation of transformation.
+    \item Ensure correctness with input parsing, string manipulation, and memory-safe operations.
+\end{itemize}
+
+\subsection{Motivation}
+The EvoChirp project challenges students to handle real-world string processing in assembly, using architecture-specific conventions while simulating natural phenomena. It encourages clean, modular design even in a low-level language and reinforces understanding of memory management and control logic.
+
+\section{Problem Description}
+The input format is a single line string structured as:
+\begin{quote}
+\texttt{<Species> <Note> <Note> ... <Operator> <Operator> ...}
+\end{quote}
+
+For each valid line, the program must:
+\begin{itemize}[noitemsep]
+    \item Identify the species (Sparrow, Warbler, or Nightingale).
+    \item Parse the song expression (notes + operators).
+    \item Apply each operator to the song according to species-specific rules.
+    \item Output the resulting song after each operation.
+\end{itemize}
+
+The simulator enforces a strict grammar and assumes no malformed input.
+
+\section{Methodology}
+\subsection{Data Structures}
+The notes array is implemented as a statically allocated block in the stack frame, with a custom format that includes an index counter and 128-entry note buffer. Each entry is 8 bytes (to support string operations).
+
+\subsection{Key Functions}
+\begin{itemize}[noitemsep]
+    \item \texttt{get\_species}: Maps species name to species code (0--2).
+    \item \texttt{op\_plus}, \texttt{op\_minus}, \texttt{op\_star}, \texttt{op\_h}: Species-specific implementations for each operator.
+    \item \texttt{softness}: Determines note softness for Sparrow's reduction rule.
+    \item \texttt{process\_input\_line}: Tokenizes input, dispatches operations, prints each generation.
+\end{itemize}
+
+\subsection{Operator Semantics}
+The operator meanings vary by species. For instance:
+\begin{itemize}[noitemsep]
+    \item \textbf{Sparrow}: Merges with hyphen, transforms notes globally on H.
+    \item \textbf{Warbler}: Repeats last notes or appends trill.
+    \item \textbf{Nightingale}: Expands entire song or mirrors last three notes.
+\end{itemize}
+
+\section{Implementation}
+\subsection{Code Structure}
+The code is modular and consists of:
+\begin{itemize}[noitemsep]
+    \item Global constants (.rodata) for strings and formats.
+    \item Dedicated functions for each operator.
+    \item Main loop that reads input and handles exit conditions.
+    \item Tokenized processing with register-safe logic and pointer manipulation.
+\end{itemize}
+
+\subsection{Sample Code Snippet}
+\begin{lstlisting}[language={[x86masm]Assembler}, basicstyle=\ttfamily\footnotesize]
+# Constants and format strings
+.section .rodata
+bird_species_sparrow:       .string "Sparrow"               
+# Name of Sparrow species
+bird_species_warbler:       .string "Warbler"               
+# Name of Warbler species
+bird_species_nightingale:   .string "Nightingale"           
+# Name of Nightingale species
+format_string_combine:      .string "%s-%s"                 
+# Format for combining notes
+note_c:                     .string "C"                     
+# Chirp note
+note_t:                     .string "T"                     
+# Trill note
+note_d:                     .string "D"                     
+# Deep call note
+space_char:                 .string " "                     
+# Space character for tokenizing
+error_unknown_species:      .string "Unknown species: %s\n" 
+# Error message for invalid species
+format_generation:          .string "%s Gen %d:"            
+# Format for generation output
+format_note:                .string " %s"                   
+# Format for individual notes
+newline:                    .string "\n"                    
+# New line character
+cmd_exit:                   .string "exit"                  
+# Exit command
+cmd_quit:                   .string "quit"                  
+# Quit command
+
+# Function: op_plus - Merge notes according to species rules
+.globl  op_plus
+op_plus:
+        pushq   %rbp                  # Set stack frame
+        movq    %rsp, %rbp
+        subq    $48, %rsp             # Allocate space for local variables
+        movq    %rdi, -40(%rbp)       # Store pointer to notes array
+        movl    %esi, -44(%rbp)       # Store species code
+        
+        # Check if there are at least two notes
+        movq    -40(%rbp), %rax
+        movl    1024(%rax), %eax      # Load current note count
+        cmpl    $1, %eax              # If notes <= 1, skip operation
+        jle     .op_plus_insufficient_notes
+        
+        # Get pointer to last note
+        movq    -40(%rbp), %rax
+        movl    1024(%rax), %eax
+        subl    $1, %eax
+        cltq
+        leaq    0(,%rax,8), %rdx
+        movq    -40(%rbp), %rax
+        addq    %rdx, %rax
+        movq    %rax, -8(%rbp)        # Pointer to last note
+        
+        # Get pointer to second last note
+        movq    -40(%rbp), %rax
+        movl    1024(%rax), %eax
+        subl    $2, %eax
+        cltq
+        leaq    0(,%rax,8), %rdx
+        movq    -40(%rbp), %rax
+        addq    %rdx, %rax
+        movq    %rax, -16(%rbp)       # Pointer to second last note
+        # ... (continues with merge logic)
+
+# Function: op_star - Repeat notes based on species rules
+.globl  op_star
+op_star:
+        pushq   %rbp                  # Set stack frame
+        movq    %rsp, %rbp
+        subq    $32, %rsp             # Allocate space for local variables
+        movq    %rdi, -24(%rbp)       # Store pointer to notes array
+        movl    %esi, -28(%rbp)       # Store species code
+        
+        # Check if notes array is empty
+        movq    -24(%rbp), %rax
+        movl    1024(%rax), %eax      # Load note count
+        testl   %eax, %eax            # Check if zero notes
+        je      .op_star_empty_array  # Skip if no notes
+        
+        # Select operation based on species
+        cmpl    $2, -28(%rbp)         # Nightingale species?
+        je      .op_star_nightingale
+        cmpl    $2, -28(%rbp)
+        ja      .op_star_default
+        cmpl    $0, -28(%rbp)         # Sparrow species?
+        je      .op_star_sparrow
+        cmpl    $1, -28(%rbp)         # Warbler species?
+        je      .op_star_warbler
+        jmp     .op_star_default
+        # ... (continues with repeat logic)
+
+# Function: process_input_line - Process and tokenize input line
+.globl  process_input_line
+process_input_line:
+        pushq   %rbp                      # Set stack frame
+        movq    %rsp, %rbp
+        subq    $1872, %rsp               # Allocate buffer space
+        movq    %rdi, -1864(%rbp)         # Store input line pointer
+
+        # Copy input safely to buffer
+        movq    -1864(%rbp), %rcx
+        leaq    -304(%rbp), %rax
+        movl    $256, %edx                # Max length 256 chars
+        movq    %rcx, %rsi
+        movq    %rax, %rdi
+        call    strncpy
+        movb    $0, -49(%rbp)             # Add null terminator
+        
+        # Split input line into tokens
+        movl    $0, -4(%rbp)              # Token counter start at 0
+        leaq    -304(%rbp), %rax
+        movl    $space_char, %esi         # Space char as separator
+        movq    %rax, %rdi
+        call    strtok
+        movq    %rax, -16(%rbp)           # First token pointer
+        jmp     .process_tokens
+        # ... (continues with token processing logic)
+
+# Function: main - Entry point and main loop
+.globl  main
+main:
+        pushq   %rbp                      # Set stack frame
+        movq    %rsp, %rbp
+        subq    $256, %rsp                # Buffer for input line
+
+command_loop:
+        # Read input line from user
+        movq    stdin(%rip), %rdx         # stdin stream
+        leaq    -256(%rbp), %rax          # Input buffer address
+        movl    $256, %esi                # Max chars to read
+        movq    %rax, %rdi                # Input buffer
+        call    fgets                     # Read user input line
+        testq   %rax, %rax                # Check EOF or error
+        je      finish_program            # Exit if EOF or error detected
+        # ... (continues with checking for exit and calling processing functions)
+
+\end{lstlisting}
+
+\section{Results}
+The program was tested using all five official test cases provided in the project description. After addressing minor bugs in memory indexing and species identification, the program passed \textbf{100\% of the grader tests}. It produces the correct output format and transformations for all operators across all species.
+
+\section{Discussion}
+The primary challenge was emulating high-level string logic using assembly language. Managing memory manually for variable-length strings, ensuring register correctness, and validating grammar compliance added significant complexity. The project highlights the tradeoff between control and convenience in low-level languages.
+
+Future improvements could include:
+\begin{itemize}[noitemsep]
+    \item Dynamic memory allocation for note arrays.
+    \item Additional operator support or species customization.
+    \item Full input grammar checking and recovery.
+\end{itemize}
+
+\section{Conclusion}
+EvoChirp successfully implements a text-based bird song evolution simulator in assembly. It reinforces foundational systems programming concepts including memory management, stack-based computation, and control flow. The program adheres strictly to specification and output format, and demonstrates a deep understanding of x86\_64 GNU Assembly practices.
+
+\section*{References}
+\begin{itemize}[noitemsep]
+    \item CMPE230 Assignment 2 PDF
+    \item Piazza Q/A Discussions
+    \item Lecture Slides and Notes
+    \item GNU x86\_64 Assembly Documentation
+\end{itemize}
+
+\section*{AI Assistants}
+AI tools such as ChatGPT were used for the following:
+\begin{itemize}[noitemsep]
+    \item Clarifying assembly syntax and debugging segmentation faults
+    \item Understanding x86\_64 calling conventions
+    \item Explaining GNU toolchain behavior and register usage
+    \item Formatting and grammar-checking LaTeX documentation
+\end{itemize}
+
+All implementation decisions and coding were performed by the project authors.
+
+\end{document}
