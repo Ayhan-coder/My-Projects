@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rename Hall</title>
+</head>
+<body>
+    <h2>Rename Hall</h2>
+    <form method="POST">
+        <label for="hall_id">Select Hall:</label>
+        <select name="hall_id" required>
+            {% for hall in halls %}
+                <option value="{{ hall.hall_id }}">{{ hall.hall_name }} (ID: {{ hall.hall_id }})</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="new_name">New Name:</label>
+        <input type="text" name="new_name" required><br><br>
+
+        <input type="submit" value="Rename Hall">
+    </form>
+    <br>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

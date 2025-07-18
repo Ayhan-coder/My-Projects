@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - {{ role }}</title>
+</head>
+<body>
+    <h2>Welcome, {{ username }}!</h2>
+    <p>You are logged in as: {{ role }}</p>
+
+    {% if role == 'COACH' %}
+        <a href="/create_match">Create New Match</a><br>
+    {% endif %}
+    {% if role == 'COACH' %}
+    <a href="/view_halls">View Available Halls</a><br>
+    {% endif %}
+    {% if role == 'COACH' %}
+    <a href="/assign_players">Assign players</a><br>
+    {% endif %}
+    {% if role == 'COACH' %}
+    <a href="/delete_match">Delete match</a><br>
+    {% endif %}
+    {% if role == 'PLAYER' %}
+    <a href="/player_stats">View Your Opponent Stats</a><br>
+    {% endif %}
+    {% if role == 'ARBITER' %}
+    <h3>Arbiter Options</h3>
+    <ul>
+        <li><a href="/submit_ratings">Submit a rating</a></li>
+        <li><a href="/arbiter_stats">View rating statistics</a></li>
+        <li><a href="/assigned_matches">View assigned matches</a></li>
+    </ul>
+    {% endif %}
+    {% if role == 'DATABASE_MANAGER' %}
+    <h3>Database Manager Options</h3>
+    <ul>
+        <li><a href="/rename_hall">Rename Hall</a></li>
+        <li><a href="/create_user">Create User (Player, Coach, Arbiter)</a></li>
+    </ul>
+    {% endif %}
+
+
+    
+    <a href="/logout">Logout</a>
+</body>
+</html>
+
+

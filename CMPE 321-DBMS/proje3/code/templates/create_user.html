@@ -1,0 +1,72 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+
+
+<form method="POST">
+    <label>Username:</label>
+    <input type="text" name="username" required><br>
+
+    <label>Password:</label>
+    <input type="password" name="password" required><br>
+
+    <label>Role:</label>
+    <select name="role" id="role" required onchange="toggleFields()">
+        <option value="COACH">Coach</option>
+        <option value="ARBITER">Arbiter</option>
+        <option value="PLAYER">Player</option>
+    </select><br>
+
+    <label>Name:</label>
+    <input type="text" name="name" required><br>
+
+    <label>Surname:</label>
+    <input type="text" name="surname" required><br>
+
+    <label>Nationality:</label>
+    <input type="text" name="nationality" required><br>
+
+    <!-- Arbiter fields -->
+    <div id="arbiterFields" style="display:none;">
+        <label>Experience Level:</label>
+        <select name="experience_level">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+            <option value="Expert">Expert</option>
+        </select><br>
+    </div>
+
+    <!-- Player fields -->
+    <div id="playerFields" style="display:none;">
+        <label>Date of Birth:</label>
+        <input type="date" name="date_of_birth"><br>
+
+        <label>ELO Rating:</label>
+        <input type="number" name="elo_rating" min="1001"><br>
+
+        <label>FIDE ID:</label>
+        <input type="text" name="fide_id"><br>
+
+        <label>Title ID:</label>
+        <input type="number" name="title_id"><br>
+    </div>
+
+    <input type="submit" value="Create User">
+</form>
+
+<script>
+function toggleFields() {
+    const role = document.getElementById('role').value;
+    document.getElementById('arbiterFields').style.display = (role === 'ARBITER') ? 'block' : 'none';
+    document.getElementById('playerFields').style.display = (role === 'PLAYER') ? 'block' : 'none';
+}
+window.onload = toggleFields;
+</script>

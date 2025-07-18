@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Halls</title>
+</head>
+<body>
+    <h2>Available Halls</h2>
+
+    <table border="1" cellpadding="6">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Country</th>
+            <th>Capacity</th>
+        </tr>
+        {% for hall in halls %}
+        <tr>
+            <td>{{ hall.hall_id }}</td>
+            <td>{{ hall.hall_name }}</td>
+            <td>{{ hall.hall_country }}</td>
+            <td>{{ hall.hall_capacity }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br><a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

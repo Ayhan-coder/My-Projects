@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Match Rating</title>
+</head>
+<body>
+    <h2>Submit Rating for Past Matches</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul style="color:red">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="post">
+        <label>Match:</label><br>
+        <select name="match_id">
+            {% for match in matches %}
+                <option value="{{ match.match_id }}">
+                    ID {{ match.match_id }} — {{ match.white_player }} vs {{ match.black_player }} on {{ match.match_date }}
+                </option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Rating (1-10):</label><br>
+        <input type="number" name="rating" min="1" max="10" required><br><br>
+
+        <input type="submit" value="Submit Rating">
+    </form>
+
+    <br><a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>
