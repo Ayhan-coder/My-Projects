@@ -1,0 +1,90 @@
+<html>
+<head>
+<link href="css/question.css" type="text/css" rel="stylesheet" />
+<title>Question (teaching.codes)</title>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<h1>
+					<code>Chasing Cars</code>
+				</h1>
+				<div>
+					Please read <a href="ReadMe.html">important information</a> first.
+				</div>
+				<div id="page1">
+					<h2>Description</h2>
+					<p>
+                        In this homework, you are expected to print out the "pictures" of an event frame by frame.<br>
+                        Each frame will feature a person and a car. The car will start from the right side and exit from the left side. So, the car is chasing the person, we are not chasing cars :)
+                    </p>
+                <div style="border: 1px solid rgba(0, 0, 0, 0.5); border-radius: 10px; padding: 10px; padding-top: 0; width: 70%; margin: 0 0; display: flex; flex-direction: column; justify-content: left; align-items: left;">
+                    <h3>Input Format:</h3>
+                    Input taking part is handled for you, you can use the given variables without taking the input.<br>
+                    <p><b style="color: red; white-space: nowrap;">Warning:</b> Make sure you are using the <b style="white-space: nowrap;">correct</b> variable names.</p>
+
+                    Input will contain 3 lines:
+                    <ul>
+                        <li>First line <code>car_height</code> contains the height of the car. (vertical size)</li>
+                        <li>Second line <code>car_length</code> contains the lenght of the car. (horizontal size) </li>
+                        <li>Third line <code>man_height</code> contains the height of the straw man. (length between arms and legs)</li>
+                    </ul>
+                </div>
+
+
+                <ul> 
+                    <li>Following image is a summary of the related dimensions. Note that this image shows the first frame in the case where <code>man_height = 3</code>, <code>car_height = 5</code> and <code>car_length = 5</code>.  <br>
+                        <img src="./exp_img.jpg" width="30%">
+
+                    </li>
+                    <li>The person's head, neck, arms and legs will always have same dimensions, only thing that will change is his body (i.e. <code>man_height</code> variable), 
+                        as it's been shown in the image above.</li>
+                    <li>In the first frame, <b>bottom left corner of the car</b> will always be positioned at 15 characters from the left and 3 characters from the bottom as shown in the image above.</li>
+                    <li>In each frame, the car will move 1 unit to the left.</li>
+                    <li>Last frame is the exactly the frame that the car completely leaves the frame, and only the person will be visible.</li>
+                    <li>After printing each frame, create a <b>single</b> empty line between them to separate them.</li>
+                    <li>Example inputs and outputs are provided you to in a separate zip file on Moodle (<code>examples.zip</code>). Since the outputs are pretty long, it's more convenient this way. 
+                        However, Tester.py works properly too.</li>
+                    <li>The car is in front of the person, which means that in the event that they share the same space, part of the person behind the car won't be visible.</li>
+                    <li>Trailing whitespaces on the right side of the lines will be ignored when testing, so you should not worry about them</li>
+                    <li>You are given visual samples, however here is a simple breakdown of the objects:
+                        <ul>
+                            <li>Outline of both objects will be created with uppercase "X" character and empty spaces will be created with " " (whitespace) character.</li>
+                            <li>Person will have a width 5, height 4 rectangle head.</li>
+                            <li>Person will have a width 1, height 1 neck.</li>
+                            <li>Person will have a width 5, height 1 row as their arms. </li>
+                            <li>Person will have a width 1, height <code>man_height</code> body.</li>
+                            <li>For the legs please check the examples or the image above.</li>
+                            <li>The car is a width <code>car_length</code> and height <code>car_height</code> rectangle.</li>
+                     </ul>
+                    </li>
+                    <li>
+                        You can assume the following facts about the input:
+                        <ul>
+                            <li><code>car_length</code> and <code>car_height</code> will always be bigger than 2 and given as a valid integer.</li>
+                            <li><code>man_height</code> will always be bigger than 0 and given as a valid integer.</li>
+                            <li><code>man_height + 5</code> will always be bigger than or equal to <code>car_height</code>. This means that the top of the car will never go above the head of the person.</li>
+                        </ul>
+                    </li>
+                </ul>
+					<hr>
+					<p>
+						Check the examples for further clarification. Keep in mind that we will be grading your code not just based on these examples, but other cases as well,	so try to write code which can handle all possible cases.<br>
+                        Examples won't be given at this document, but as additional files.
+					</p>
+					<p>
+						<b style="color:red;">Warning:</b> You are not allowed to use any imports and any topics that haven't been covered this semester.
+					</p>
+                    <p>
+                        <b>For fun:</b> The name of this homework is inspired by the song <a href="https://www.youtube.com/watch?v=GemKqzILV4w" target="_new">Chasing Cars by Snow Patrol</a>. Give it a listen.
+                    </p>
+
+					
+
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

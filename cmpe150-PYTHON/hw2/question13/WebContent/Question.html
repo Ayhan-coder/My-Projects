@@ -1,0 +1,98 @@
+<html>
+<head>
+<link href="css/question.css" type="text/css" rel="stylesheet" />
+<title>Question (teaching.codes)</title>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<h1>
+					Question 13: <br><br>
+					<code>Finding the standard deviation (5 points)</code>
+				</h1>
+				<div>
+					Please read <a href="ReadMe.html">important information</a> first.
+				</div>
+				<div id="page1">
+					<h2>Description</h2>
+					<p>
+					In this problem, given n integers, you are expected to find their standard deviation &sigma;, where the formulas are given as below, <br> 
+					where the number &mu; is the arithmetic mean of these n numbers. <br>
+					<img src="sdformula.png" alt="Image Description" width="200" height="100">
+					<img src="muformula.png" alt="Image Description" width="200" height="100">
+					</p>
+					<p> User will enter a positive integer amount of inputs, and assume at least two inputs are written. In the input taking part, if a 0 (zero) input <br>
+						is given, it behaves as a "stop code" and stops taking input, which means that our numbers we need to calculate their standard deviation are <br>
+						only the numbers given as input before writing 0. For example, in the input taking part, if you write 3,5,7,0 consecutively, the the numbers <br> 
+						considered will only be 3,5,7. You can safely assume that all inputs except the stop code are non-zero integers. At the end of your calculations, <br> 
+						the calculated value will have at most 4 digits after the comma (,) sign, which will already be handled.		
+					</p>
+					<p>Depending on your input numbers, you need to print:  </p>
+					<ul>
+					<li>The standard deviation of your numbers given as input (without considering 0).</li>
+					</ul>
+					<p>
+						<b>Important 1:</b> As it has been stated above, input taking part is handled. The numbers in the input is already put into a variable called <code>numbers_list</code>.
+					</p>
+					<p>
+						<b>Important 2:</b> As it has been stated above, output printing part is handled. However, you should put the result of your calculation into a variable called <code>std_dev</code>, otherwise output will not be printed properly.
+					</p>
+					<p>------------------------------------------------------------------</p>
+					<p>
+						Check the examples for further clarification. Keep in mind that we will be grading your code not just based on these examples, but other cases as well,	so try to write code which can handle all possible cases.
+					</p>
+					<p>
+						<b>Warning:</b> You are not allowed to use any imports and any topics that haven't been covered this semester.
+					</p>
+
+					<b>Examples:</b>
+					<table>
+						<tr class="header">
+							<td>INPUT</td>
+							<td>OUTPUT</td>
+						</tr>
+						<tr>
+							<td style- = "white-space: nowrap">
+							3 <br>
+							5 <br>
+							7 <br>
+							0							
+							</td>
+							<td style = "white-space: nowrap">
+							1.633
+							</td>
+						</tr>
+						<tr>
+							<td style- = "white-space: nowrap">
+							1 <br>
+							4 <br>
+							9 <br>
+							16 <br> 
+							25 <br>
+							0
+							</td>
+							<td style = "white-space: nowrap">
+							8.6487
+							</td>
+						</tr>
+						<tr>
+							<td style- = "white-space: nowrap">
+							4 <br>
+							4 <br>
+							4 <br>
+							4 <br>
+							0 
+							</td>
+							<td style = "white-space: nowrap">
+							0.0
+							</td>
+						</tr>
+					</table>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
