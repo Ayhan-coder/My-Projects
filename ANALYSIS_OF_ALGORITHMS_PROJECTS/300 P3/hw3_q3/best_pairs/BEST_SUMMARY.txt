@@ -1,0 +1,12 @@
+Best pairs copied here (from latest 40-trial retest):
+
+ID 14: retest 60.0%
+ID 17: retest 57.5%
+ID 13: retest 57.5%
+ID 11: retest 57.5%
+ID 12: retest 50.0%
+ID 16: retest 45.0%
+
+Source files:
+  graphs/G_ID.txt
+  colorings/coloring_ID.txt

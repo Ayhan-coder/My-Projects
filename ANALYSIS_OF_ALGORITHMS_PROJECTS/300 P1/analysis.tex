@@ -1,0 +1,212 @@
+\documentclass[11pt]{article}
+% Layout and typography
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{setspace}
+
+% Math and tables
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+
+% Lists and links
+\usepackage{enumitem}
+\usepackage{hyperref}
+	itle{Hamiltonian* Path --- Theoretical Analysis}
+\author{}
+\date{\today}
+
+\begin{document}
+\onehalfspacing
+\maketitle
+
+\section*{Part 1: Naive Algorithm Analysis (50 pt)}
+
+\subsection*{Basic Operation (5 pt)}
+The basic operation is: checking if an edge exists between two consecutive vertices in a permutation. Concretely, in a check routine we test
+\[
+	exttt{if\ H[perm[i]][perm[i+1]] == 0}\,.
+\]
+This is executed in the innermost loop, governs the running time, and is an $\mathcal{O}(1)$ array access/comparison.
+
+\subsection*{Time Complexity Analysis (20 pt)}
+
+\paragraph{Worst Case.} Steps in the algorithm:
+\begin{enumerate}[label=\arabic*.]
+	\item Subset generation: choose $n$ vertices from $3n$, i.e., $\binom{3n}{n}$ subsets. Only subsets containing both $\textit{start}$ and $\textit{end}$ are processed, yielding approximately $\binom{3n-2}{\,n-2\,}$ valid subsets in the worst case.
+	\item For each valid subset:
+		\begin{itemize}
+			\item Build subgraph $H$: $\mathcal{O}(n^2)$ operations.
+			\item Find indices of $s$ and $t$: $\mathcal{O}(n)$ operations.
+			\item Check all permutations that start at $s$ and end at $t$: $(n-2)!$ permutations.
+		\end{itemize}
+	\item For each permutation, the check inspects up to $n-1$ edges; the basic operation executes $n-1$ times per permutation.
+\end{enumerate}
+
+Therefore, the worst-case running time is obtained by multiplying the number of valid subsets by the work per subset. For each valid subset we pay a polynomial preprocessing cost and then an exponential search cost over permutations. Formally,
+\[
+T_{\text{worst}}(n)
+ = \binom{3n-2}{\,n-2\,}\,\big(n^2 + n + (n-2)!\,(n-1)\big).
+\]
+For asymptotic growth, the factorial term dominates the polynomial terms $n^2$ and $n$. More precisely,
+\[
+n^2 + n + (n-2)!\,(n-1) \in \Theta\big((n-2)!\,n\big),
+\]
+so we can simplify to
+\[
+T_{\text{worst}}(n)
+ = \Theta\!\big(\binom{3n-2}{\,n-2\,}\,(n-2)!\,n\big).
+\]
+To express this using a slightly cleaner binomial term, note that
+\[
+\binom{3n-2}{n-2} = \frac{(3n-2)!}{(n-2)!\,(2n)!}
+\le \frac{(3n)!}{n!\,(2n)!} = \binom{3n}{n},
+\]
+and $(n-2)!\,n = \Theta(n!)$. Hence
+\[
+T_{\text{worst}}(n) = \mathcal{O}\!\big(\binom{3n}{n}\, n!\big),
+\]
+which grows extremely fast (super-exponential due to the $n!$ factor).
+
+\paragraph{Best Case.} The first subset tried contains a valid Hamiltonian* path and the first permutation checked is the valid path. Cost: build $H$ in $\mathcal{O}(n^2)$ and verify a single path; overall $T_{\text{best}}(n)=\mathcal{O}(n^2)$.
+
+\paragraph{Average Case.} We do not have a tight distribution on the input graphs, but under mild probabilistic assumptions we can argue that the exponential structure remains. Assume:
+\begin{itemize}
+	\item A constant fraction $\alpha \in (0,1]$ of the $\binom{3n-2}{n-2}$ subsets are ``viable'' (that is, they induce a component of size $n$ containing both endpoints).
+	\item For a viable subset that actually contains a Hamiltonian* path, the algorithm finds it after exploring, on average, a constant fraction $\beta$ of all $ (n-2)!$ permutations.
+	\item For permutations that are not valid paths, early termination occurs after checking about $\gamma n$ edges on average, for some constant $\gamma \in (0,1)$.
+\end{itemize}
+Then the expected number of basic operations is on the order of
+\[
+T_{\text{avg}}(n)
+ \approx \alpha\,\binom{3n-2}{n-2}\; \beta\,(n-2)!\; \gamma n
+ = \Theta\!\big(\binom{3n-2}{n-2}\,(n-2)!\,n\big),
+\]
+and using the same simplifications as in the worst case, this gives
+\[
+T_{\text{avg}}(n) = \mathcal{O}\!\big(\binom{3n}{n}\, n!\big).
+\]
+
+\medskip
+\noindent\textbf{Summary.}
+\begin{itemize}[left=1.2em]
+	\item Best case: $\mathcal{O}(n^2)$
+	\item Worst case: $\mathcal{O}\!\big(\binom{3n}{n}\, n!\big)$
+	\item Average case: $\mathcal{O}\!\big(\binom{3n}{n}\, n!\big)$
+\end{itemize}
+
+\section*{Part 2: Optimized Algorithm Analysis (50 pt)}
+
+\subsection*{Key Optimization}
+The graph consists of three disconnected components of size $n$ each. Because a Hamiltonian* path must visit exactly $n$ nodes and components are disconnected:
+\begin{itemize}[left=1.2em]
+	\item $\textit{start}$ and $\textit{end}$ must lie in the \emph{same} component; and
+	\item that component must contain exactly $n$ nodes.
+\end{itemize}
+
+\subsection*{Algorithm Steps}
+\begin{enumerate}[label=\arabic*.]
+	\item Find the component containing $\textit{start}$ (BFS/DFS): $\mathcal{O}(3n)=\mathcal{O}(n)$.
+	\item Check whether $\textit{end}$ is in the same component: $\mathcal{O}(1)$.
+	\item If so, restrict the search to that component (size $n$) and check only permutations within it.
+\end{enumerate}
+
+\subsection*{Time Complexity}
+\paragraph{Worst Case.} Let $C$ be the connected component containing $\textit{start}$. A breadth-first search (BFS) or depth-first search (DFS) explores all vertices in $C$ in time proportional to the number of vertices plus edges in $C$. Since $C$ has at most $n$ vertices and the underlying graph is simple, this gives
+\[
+	ext{Component detection} \in \mathcal{O}(n + |E(C)|) \subseteq \mathcal{O}(n^2),
+\]
+and we summarize this as $\mathcal{O}(n)$ in terms of $n$-scale for the assignment. After that, we explicitly build the induced subgraph $H$ on these $n$ vertices, which costs $\mathcal{O}(n^2)$ edge lookups. Finally, we check $(n-2)!$ permutations of the $n-2$ internal vertices, and for each such permutation we may examine up to $n-1$ edges. Hence
+\[
+T^{\text{opt}}_{\text{worst}}(n) = \mathcal{O}(n) + \mathcal{O}(n^2) + (n-2)!\,n = \mathcal{O}(n!).
+\]
+This improves on the naive $\mathcal{O}\!\big(\binom{3n}{n}\, n!\big)$ by a multiplicative factor of approximately $\binom{3n}{n}$. Intuitively, instead of paying for all possible $n$-subsets of $3n$ vertices, we first \emph{identify} the unique relevant component and then pay only for permutations inside that component.
+
+\paragraph{Best Case.} Same as naive: $\mathcal{O}(n^2)$ (component detection, build $H$, and first permutation succeeds).
+
+\paragraph{Average Case.} Dominated by the factorial term within one component:
+\[
+T^{\text{opt}}_{\text{avg}}(n) = \mathcal{O}(n!).
+\]
+
+\subsection*{Comparison}
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llll@{}}
+	oprule
+Algorithm & Best Case & Worst Case & Average Case \\
+\midrule
+Naive & $\mathcal{O}(n^2)$ & $\mathcal{O}\!\big(\binom{3n}{n}\, n!\big)$ & $\mathcal{O}\!\big(\binom{3n}{n}\, n!\big)$ \\
+Optimized & $\mathcal{O}(n^2)$ & $\mathcal{O}(n!)$ & $\mathcal{O}(n!)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{Bonus: Superior Algorithm (20 pt)}
+
+\subsection*{Held-Karp Dynamic Programming}
+Instead of generating permutations or using backtracking, apply the Held-Karp dynamic programming algorithm:
+\begin{enumerate}[label=\arabic*.]
+	\item Define state: $\textit{dp}[\text{mask}][v]$ = whether there exists a path starting from $\textit{start}$, visiting exactly the vertices indicated by bitmask $\text{mask}$, and ending at vertex $v$.
+	\item Base case: $\textit{dp}[\{start\}][start] = \textit{True}$.
+	\item Transition: For each state $\textit{dp}[\text{mask}][u] = \textit{True}$, try extending to vertex $v \notin \text{mask}$ if edge $(u,v)$ exists. Set $\textit{dp}[\text{mask} \cup \{v\}][v] = \textit{True}$.
+	\item Answer: $\textit{dp}[\text{all vertices}][end]$.
+\end{enumerate}
+
+\subsection*{Complexity Analysis}
+\paragraph{State Space.} There are $2^n$ possible subsets and $n$ possible ending vertices, giving $\mathcal{O}(n \cdot 2^n)$ states.
+
+\paragraph{Transitions.} For each state $\textit{dp}[\text{mask}][u]$, we try up to $n$ possible next vertices $v$, checking edge $(u,v)$ in $\mathcal{O}(1)$ time.
+
+\paragraph{Total Time.}
+\[
+T_{\text{Held-Karp}}(n) = \mathcal{O}(n^2 \cdot 2^n)
+\]
+This includes:
+\begin{itemize}[left=1.2em]
+	\item Preprocessing: $\mathcal{O}(n^2)$ for component detection and subgraph construction.
+	\item DP computation: $\mathcal{O}(n \cdot 2^n)$ states $\times$ $\mathcal{O}(n)$ transitions per state = $\mathcal{O}(n^2 \cdot 2^n)$.
+\end{itemize}
+
+\paragraph{Space Complexity.} The DP table requires $\mathcal{O}(n \cdot 2^n)$ space.
+
+\subsection*{Comparison with Other Approaches}
+\begin{itemize}[left=1.2em]
+	\item Naive: $\mathcal{O}\!\big(\binom{3n}{n}\, n!\big)$ --- exponentially worse
+	\item Optimized: $\mathcal{O}(n!)$ --- still factorial growth
+	\item \textbf{Held-Karp: $\mathcal{O}(n^2 \cdot 2^n)$} --- exponentially better than $n!$
+\end{itemize}
+
+For concrete comparison when $n = 20$:
+\begin{align*}
+n! &= 20! \approx 2.43 \times 10^{18} \\
+n^2 \cdot 2^n &= 400 \times 2^{20} \approx 4.19 \times 10^{8}
+\end{align*}
+The Held-Karp algorithm achieves a speedup factor of approximately $10^{10}$ (10 billion times faster) compared to the permutation-based approach!
+
+\subsection*{Polynomial-Time Discussion}
+The general Hamiltonian Path problem is NP-complete. Formally, this means that there is a polynomial-time reduction from any problem in NP to Hamiltonian Path, and no polynomial-time algorithm is known for it. In our specific setting (three disconnected size-$n$ components), the structure allows us to reduce the search space from $3n$ vertices to at most $n$ vertices (the component containing $\textit{start}$ and $\textit{end}$). However, within this component we still face the general Hamiltonian Path problem on an $n$-vertex graph, which remains NP-complete in the worst case.
+
+The Held-Karp algorithm, while exponentially faster than naive approaches, still requires $\mathcal{O}(2^n)$ time, which is exponential. This is consistent with the NP-completeness of the problem.
+
+Special graph classes do admit polynomial algorithms:
+\begin{itemize}[left=1.2em]
+	\item Trees (acyclic connected graphs): any simple path can be found in linear time, and Hamiltonian paths are easy to characterize.
+	\item Directed acyclic graphs (DAGs): topological sorting gives a linear extension, and reachability can be checked in polynomial time.
+	\item Complete graphs: every permutation of the vertices is a Hamiltonian path.
+\end{itemize}
+Our randomly generated components do not fall into these restricted families in general, so known polynomial-time algorithms do not apply. The Held-Karp algorithm represents the best known exact algorithm for general graphs, achieving $\mathcal{O}(2^n)$ complexity through dynamic programming.
+
+\subsection*{Lower Bounds}
+At a very coarse level, the input size of a dense $n$-vertex graph is $\Theta(n^2)$, because we may need to store (or at least inspect) all $n^2$ possible adjacency entries. Any algorithm that decides the existence of a Hamiltonian* path must at least read enough of the input to distinguish different graphs; this observation yields a trivial information-theoretic lower bound of $\Omega(n^2)$ time.
+
+On the other hand, the \emph{search} aspect---finding an ordering of $n$ vertices that forms a path---suggests an exponential lower bound in the worst case. The current best known lower bound for Hamiltonian Path is $\Omega(2^n)$ under certain complexity assumptions. The Held-Karp algorithm achieves this bound (up to polynomial factors), making it optimal among known exact algorithms.
+
+This picture is consistent with the general belief that NP-complete problems require exponential time in the worst case (unless P = NP). For Hamiltonian* path with the Held-Karp algorithm:
+\begin{itemize}[left=1.2em]
+	\item Upper bound: $\mathcal{O}(n^2 \cdot 2^n)$ (achieved by Held-Karp)
+	\item Lower bound: $\Omega(2^n)$ (conjectured for NP-complete problems)
+\end{itemize}
+The gap between upper and lower bounds is only a polynomial factor ($n^2$), suggesting the Held-Karp algorithm is near-optimal.
+
+\end{document}

@@ -1,0 +1,158 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\usepackage{hyperref}
+
+\geometry{a4paper, margin=1in}
+
+\title{CMPE 300 Project 3: Interactive Proof Systems}
+\author{Ali Ayhan Gunder 2021400219 \and Yigit Memceoktay 2020403076}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Q1) Interactive Algorithm for 3-Coloring}
+
+\subsection*{a) Decision Problem Definition}
+A graph $G=(V, E)$ is \textbf{3-colorable} if there exists a function (coloring) $c: V \to \{0, 1, 2\}$ such that for every edge $(u, v) \in E$, $c(u) \neq c(v)$. In other words, no two adjacent vertices share the same color.
+
+The decision problem is defined as:
+\[
+3COLOR = \{ G \mid G \text{ is a graph that admits a valid 3-coloring} \}
+\]
+
+\subsection*{b) Zero-Knowledge Interactive Proof Protocol}
+\textbf{Setup:}
+\begin{itemize}
+    \item \textbf{Common Input:} A graph $G(V, E)$.
+    \item \textbf{Prover's Secret:} A valid 3-coloring $c$.
+\end{itemize}
+
+\textbf{Protocol (One Round):}
+\begin{enumerate}
+    \item \textbf{Commitment:} Possible colors are $\{0, 1, 2\}$. The Prover chooses a random permutation $\pi$ of the colors $\{0, 1, 2\}$. The Prover then colors the graph with a new coloring $c'(v) = \pi(c(v))$ for all $v \in V$. The Prover commits to these colors $c'(v)$ for all vertices using a cryptographic commitment scheme and sends these commitments to the Verifier.
+    \item \textbf{Challenge:} The Verifier selects an edge $(u, v) \in E$ uniformly at random and sends it to the Prover.
+    \item \textbf{Response:} The Prover reveals (opens) the commitments for the colors of vertices $u$ and $v$, sending $c'(u)$ and $c'(v)$ to the Verifier.
+    \item \textbf{Verification:} The Verifier checks if $c'(u) \neq c'(v)$ and if the opened values are consistent with the commitments. If they are different, the Verifier accepts this round; otherwise, it rejects.
+\end{enumerate}
+This protocol is repeated $k$ times (e.g., $k=n \cdot |E|$) to reduce the error probability.
+
+\subsection*{c) Probabilistic Analysis}
+
+\textbf{Completeness:}
+If $G$ is 3-colorable and the Prover is honest, there exists a valid coloring $c$. The permuted coloring $c'$ is also valid because permutations are bijections; if $c(u) \neq c(v)$, then $\pi(c(u)) \neq \pi(c(v))$. Therefore, for any edge $(u, v)$ challenged by the Verifier, the revealed colors will always be different ($c'(u) \neq c'(v)$). The Verifier will accept with probability 1.
+
+\textbf{Soundness:}
+If $G$ is not 3-colorable, then for any coloring assignment committed by the Prover, there must be at least one ``bad'' edge $(u, v)$ where the colors are the same ($c'(u) = c'(v)$). Let $m = |E|$. In the worst case, there is exactly one bad edge.
+Because the Verifier picks an edge uniformly at random from $E$, the probability of picking that bad edge is at least $1/m$.
+The probability that a cheating Prover successfully fools the Verifier in one round is thus at most $1 - \frac{1}{m}$.
+After $k$ independent rounds, the probability that the Prover succeeds in all rounds is at most $(1 - \frac{1}{m})^k$. For sufficiently large $k$ (polynomial in $n$), this probability becomes negligible (exponentially small).
+
+\textbf{Zero-Knowledge (Intuition):}
+In each round, the Verifier learns the colors of only two endpoints of an edge. Because the Prover applies a uniform random permutation $\pi$ to the colors at the start of each round, the actual numerical values revealed ($c'(u), c'(v)$) are uniformly distributed over all pairs of distinct colors (e.g., $(0,1), (1,0), (0,2), \dots$) with equal probability ($1/6$ for each ordered pair of distinct colors).
+Since the revealed colors are just random distinct pairs, they convey no information about the original structure of the coloring $c$. A simulator could generate a transcript indistinguishable from the real one by simply picking two random distinct colors for any queried edge, without knowing the true coloring. Thus, the protocol is Zero-Knowledge.
+
+\newpage
+
+\section*{Q2) Interactive Algorithm for Graph Isomorphism}
+
+\subsection*{a) Problem Definition}
+Two graphs $G_1 = (V_1, E_1)$ and $G_2 = (V_2, E_2)$ are \textbf{isomorphic} (denoted $G_1 \cong G_2$) if there exists a bijection (permutation) $\phi: V_1 \to V_2$ such that $(u, v) \in E_1$ if and only if $(\phi(u), \phi(v)) \in E_2$.
+
+The decision problem is:
+\[
+GI = \{ (G_1, G_2) \mid G_1 \cong G_2 \}
+\]
+
+\subsection*{b) Zero-Knowledge Interactive Protocol}
+\textbf{Setup:}
+\begin{itemize}
+    \item \textbf{Common Input:} Two graphs $G_1, G_2$.
+    \item \textbf{Prover's Secret:} An isomorphism $\pi$ such that $\pi(G_1) = G_2$.
+\end{itemize}
+
+\textbf{Protocol (One Round):}
+\begin{enumerate}
+    \item \textbf{Commitment:} The Prover chooses a random permutation $\sigma$ of the vertices of $G_2$. The Prover computes a graph $H$ which is isomorphic to $G_2$ via $\sigma$ (i.e., $H = \sigma(G_2)$). The Prover sends $H$ to the Verifier (or commits to its adjacency matrix).
+    \item \textbf{Challenge:} The Verifier chooses a random bit $b \in \{1, 2\}$ and sends it to the Prover.
+    \item \textbf{Response:}
+    \begin{itemize}
+        \item If $b=1$, the Prover must show that $H$ is isomorphic to $G_1$. The Prover sends the permutation $\rho = \sigma \circ \pi$ (since $\pi(G_1) = G_2$ and $\sigma(G_2) = H$, then $\sigma(\pi(G_1)) = H$).
+        \item If $b=2$, the Prover must show that $H$ is isomorphic to $G_2$. The Prover sends the permutation $\rho = \sigma$.
+    \end{itemize}
+    \item \textbf{Verification:} The Verifier checks that the received permutation $\rho$ is a valid isomorphism between $G_b$ and $H$. If valid, accept; else reject.
+\end{enumerate}
+
+\subsection*{c) Probabilistic Analysis}
+
+\textbf{Completeness:}
+If $G_1 \cong G_2$, the Prover knows $\pi$.
+- If $b=2$, Prover sends $\sigma$. Since $H$ was constructed as $\sigma(G_2)$, the Verifier checks $\sigma(G_2) = H$, which is true.
+- If $b=1$, Prover sends $\sigma \circ \pi$. Since $\pi$ maps $G_1 \to G_2$ and $\sigma$ maps $G_2 \to H$, the composition maps $G_1 \to H$. Ideally, the Verifier succeeds.
+(Note: Often the protocol is defined regarding "Prover sends graph H isomorphic to G1". If we define $H = \sigma(G_1)$, similar logic applies. The key is the Prover can map $H$ to either $G_1$ or $G_2$ because they are all isomorphic).
+
+\textbf{Soundness:}
+If $G_1 \allowbreak \not\cong G_2$, then a graph $H$ cannot be isomorphic to \textit{both} $G_1$ and $G_2$. If $H$ is isomorphic to $G_2$, it's not to $G_1$, and vice versa.
+The Prover commits to $H$ before seeing $b$.
+- If $H \cong G_1$, the Prover can answer $b=1$ but fails if $b=2$.
+- If $H \cong G_2$, the Prover can answer $b=2$ but fails if $b=1$.
+- If $H$ is isomorphic to neither, it fails both.
+Thus, in any round, a cheating Prover can answer correctly for at most one of the two possible challenges. The probability of error is at most $1/2$.
+After $k$ rounds, the probability of successful cheating is $(1/2)^k$, which vanishes exponentially.
+
+\textbf{Zero-Knowledge (Intuition):}
+The Verifier sees a graph $H$ and an isomorphism to either $G_1$ or $G_2$.
+- When $b=2$, the Verifier sees a random permuted copy of $G_2$. This gives no new info.
+- When $b=1$, the Verifier sees a random permuted copy of $G_1$ (since $G_1 \cong G_2$, this is distributionally identical to a random copy of $G_2$).
+In both cases, the Verifier just sees a random graph isomorphic to the inputs. Since the Prover chooses $\sigma$ uniformly, $H$ is a random graph from the set of graphs isomorphic to $G_1$ (and $G_2$). The specific isomorphism $\pi$ between $G_1$ and $G_2$ is never revealed directly; only mappings to the random intermediate graph $H$ are revealed, which are masked by the random $\sigma$. A simulator can produce identical transcripts by just picking a random $b'$ and generating a random $H$ for it.
+
+\newpage
+
+\section*{Bonus Part 2}
+
+\subsection*{Q4) Construction Procedure for Zero-Knowledge Proofs (5 pt)}
+To build a zero-knowledge proof for any problem in NP:
+\begin{enumerate}
+    \item \textbf{Reduction to NP-Complete Problem:} Since all NP problems are reducible to an NP-complete problem (like 3-Coloring or Hamiltonian Path) in polynomial time, we first transform the instance of our specific problem into an instance of an NP-complete problem. For example, reducing a satisfiability formula $\phi$ to a graph $G$ such that $G$ is 3-colorable iff $\phi$ is satisfiable.
+    \item \textbf{Witness Translation:} The Prover, having the witness for the original problem (e.g., satisfying assignment), transforms it into the witness for the NP-complete problem (e.g., a valid 3-coloring) using the reduction logic.
+    \item \textbf{Run Standard ZK Protocol:} The Prover and Verifier then run the standard ZK interaction for that NP-complete problem (e.g., the 3-Coloring protocol from Q1).
+    \item \textbf{Hiding the Witness:} The Prover uses \textit{cryptographic commitments} (or bit-commitment schemes) to lock in their answers (like the colored vertices) without revealing them. This allows the Prover to ``commit'' to a value and later ``open'' it to prove consistency, without changing it after seeing the Verifier's challenge.
+    \item \textbf{Probabilistic Nature:} The protocol is probabilistic because the Verifier's challenges are random. This probabilistic checking ensures \textit{Soundness}: a cheating prover might get lucky once, but the probability of successfully cheating in $k$ rounds drops exponentially (e.g., $(1 - 1/m)^k$). It basically forces the Prover to ``bet'' on the challenge, and if they lie, they will eventually be precise caught.
+\end{enumerate}
+
+\subsection*{Q5) Interactive Proof for Hamiltonian Path (5 pt)}
+\textbf{Problem:} $HP = \{ G \mid G \text{ has a Hamiltonian Path} \}$.
+
+\textbf{Protocol:}
+\begin{enumerate}
+    \item \textbf{Commitment:} Prover creates a graph $H = \pi(G)$ using a random permutation $\pi$ of the vertices $V$. Prover commits to the adjacency matrix of $H$.
+    \item \textbf{Challenge:} Verifier sends a random bit $b \in \{1, 2\}$.
+    \item \textbf{Response:}
+    \begin{itemize}
+        \item If $b=1$: Prover reveals the permutation $\pi$ and opens the entire adjacency matrix of $H$. (Verifier checks $H = \pi(G)$).
+        \item If $b=2$: Prover opens only the entries of the adjacency matrix of $H$ corresponding to the Hamiltonian path. (Verifier checks that the revealed edges form a valid Hamiltonian path of length $n-1$).
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Analysis:}
+\begin{itemize}
+    \item \textbf{Completeness:} An honest Prover knows the path. If $b=1$, they just show the isomorphism. If $b=2$, they show the path in $H$ (which exists because $P' = \pi(P)$ is a path in $H$). The Verifier accepts with probability 1.
+    \item \textbf{Soundness:} If $G$ has no Hamiltonian Path, the Prover is stuck.
+    \begin{itemize}
+        \item To pass $b=1$, they need $H \cong G$ (so $H$ has no path).
+        \item To pass $b=2$, they need $H$ to have a Hamiltonian path (so $H \not\cong G$).
+    \end{itemize}
+    The Prover cannot create an $H$ that satisfies both conditions. Thus, they must guess $b$. Probability of failure is $1/2$ per round. Repetition reduces this to $(1/2)^k$.
+    \item \textbf{Zero-Knowledge:}
+    \begin{itemize}
+        \item If $b=1$, Verifier sees a random isomorphic copy of $G$. Since $\pi$ is random, this is just a random graph from the isomorphism class.
+        \item If $b=2$, Verifier sees a Hamiltonian path on random vertices. Since $\pi$ is random, the path is just a random sequence of the vertices. It gives no info about where the path is in the original $G$.
+    \end{itemize}
+\end{itemize}
+
+\end{document}

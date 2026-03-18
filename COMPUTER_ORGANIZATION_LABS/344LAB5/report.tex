@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\begin{document}
+
+\section*{Default Parameters}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+Parameter & Value (default) \\
+\midrule
+\texttt{DCACHE\_NUMWAYS}          & 4 \\
+\texttt{DCACHE\_WAYSIZEINBYTES}   & 4096 bytes \\
+\texttt{DCACHE\_LINELENINBITS}    & 512 bits \\
+\texttt{CACHE\_SRAMLEN}           & 128 \\
+\texttt{ICACHE\_NUMWAYS}          & 4 \\
+\texttt{ICACHE\_WAYSIZEINBYTES}   & 4096 bytes \\
+\texttt{ICACHE\_LINELENINBITS}    & 512 bits \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{Question 1. What is the size of the I\$ cache and the D\$ cache?}
+
+\textbf{Calculation:}
+\begin{itemize}
+  \item One way size: 4096 bytes
+  \item Number of ways: 4
+  \item Total cache size $=$ num\_ways $\times$ way\_size $= 4 \times 4096 \text{ bytes} = 16384 \text{ bytes} = 16$ KB
+\end{itemize}
+
+\textbf{Answer:}
+\begin{itemize}
+  \item I\$ size $=$ 16 KB
+  \item D\$ size $=$ 16 KB
+\end{itemize}
+
+\section*{Question 2. How many instructions are updated into the I\$ at once?}
+
+\textbf{Calculation \& description:}
+\begin{itemize}
+  \item I\$ cache line length: ICACHE\_LINELENINBITS $= 512$ bits.
+  \item Standard RV32 instruction width: 32 bits.
+  \item Instructions per line: $512 / 32 = 16$.
+\end{itemize}
+
+\textbf{Answer:}
+On a single I\$ fill, 16 (32-bit) instructions are brought in at once.
+(If compressed 16-bit instructions are used, a line can hold up to 32 half-words; the 16 figure refers to full 32-bit instructions.)
+
+\section*{Question 3. How many 32-bit words are brought into the D\$ on a single cache fill?}
+
+\textbf{Calculation:}
+\begin{itemize}
+  \item D\$ cache line length: DCACHE\_LINELENINBITS $= 512$ bits.
+  \item One data word $= 32$ bits.
+  \item Words per line: $512 / 32 = 16$ 32-bit words.
+\end{itemize}
+
+\textbf{Answer:}
+16 32-bit words are brought into the D\$ per cache fill.
+
+\section*{Question 4. When does a cache miss and a cache hit occur?}
+
+The explanation of cache hits and misses is detailed in Section 5.3, ``The Basics of Caches'' of Patterson \& Hennessy.
+
+\textbf{Cache Hit:}
+\begin{itemize}
+  \item A cache hit occurs when the data requested by the processor appear in some block in the upper level of the memory hierarchy (p.~83).
+  \item In a direct-mapped cache, a hit requires that the valid bit is on and the tag matches the upper portion of the requested address (pp.~398, 581, 583).
+  \item It is analogous to finding the needed information in one of the books already on your desk.
+\end{itemize}
+
+\textbf{Cache Miss:}
+\begin{itemize}
+  \item A cache miss occurs if the data requested by the processor are not found in the upper level (p.~84).
+  \item The lower level in the hierarchy is then accessed to retrieve the block containing the requested data (p.~85).
+  \item In a direct-mapped cache, a miss occurs if the index selects an entry where the valid bit is off, or if the valid bit is on but the address tag does not match the stored tag (pp.~398, 581, 583).
+\end{itemize}
+
+\textbf{References:}
+\begin{itemize}
+  \item Patterson \& Hennessy, \emph{Computer Organization and Design: The Hardware/Software Interface} (Second Edition), Section 5.3, pp.~83--85, 398, 581, 583.
+\end{itemize}
+
+\section*{Question 5. Write-back vs.\ write-through in Wally}
+
+The write-back and write-through strategies for handling writes to memory are explained in Section 5.3, ``Handling Writes'' of Patterson \& Hennessy (pp.~727--731).
+
+\textbf{Write-Back Strategy:}
+\begin{itemize}
+  \item In a write-back scheme, when a write occurs, the new value is written only to the block in the cache (p.~728).
+  \item The modified block is written to the lower level of the hierarchy (main memory) only when it is replaced (pp.~701, 703, 729).
+  \item To track if a block has been modified, a dirty bit is associated with the cache block (p.~728).
+  \item This scheme is often more complex to implement than write-through but can improve performance (pp.~730, 731).
+\end{itemize}
+
+\textbf{Write-Through Strategy:}
+\begin{itemize}
+  \item Writes always update both the cache and the next lower level of the memory hierarchy (pp.~698, 699, 709).
+  \item This ensures that the data in the cache and memory are always consistent (p.~699).
+\end{itemize}
+
+\textbf{Key Difference:}
+\begin{itemize}
+  \item Write-through requires an update to the lower memory hierarchy on every write (p.~716).
+  \item Write-back avoids this frequent update, delaying the memory write until the modified block is replaced (p.~729).
+\end{itemize}
+
+\textbf{References:}
+\begin{itemize}
+  \item Patterson \& Hennessy, \emph{Computer Organization and Design: The Hardware/Software Interface} (Second Edition), Section 5.3, pp.~698--703, 709--710, 716, 727--731.
+\end{itemize}
+
+\section*{Bonus: L2 cache design choices for Wally}
+
+Key design choices and Wally code locations:
+
+\begin{itemize}
+  \item \textbf{Cache hierarchy interface:} Define L1 (I\$ and D\$) to L2 interface signals (requests, responses, write-back channels, valid/ack signals, arbitration).
+        Relevant modules:
+        \begin{itemize}
+          \item \texttt{src/cache/cache.sv} -- top-level cache module.
+          \item \texttt{src/cache/cachefsm.sv} -- cache FSM (miss/fill/evict).
+          \item \texttt{src/cache/cacheLRU.sv} -- LRU replacement logic.
+          \item \texttt{src/cache/cacheway.sv} -- per-way storage and tags.
+          \item \texttt{src/cache/subcachelineread.sv} -- sub-line read helper.
+        \end{itemize}
+  \item \textbf{L2 organization:} Choose L2 capacity, associativity, and line size; decide if L2 line size matches L1 or if sub-line fills are used.
+  \item \textbf{Policies and coherence:} Replacement (LRU/PLRU), write policy (e.g.\ write-back at L1, write-back or write-through at L2), and coherence/consistency strategy if multiple masters/cores exist.
+  \item \textbf{Miss handling/MSHRs:} L2 adds latency; L1 must track outstanding misses and receive fills from L2. Extend cache FSMs (\texttt{cachefsm.sv}) to communicate with L2.
+  \item \textbf{Interconnect:} Decide how L1s and other masters access L2 and main memory (AHB/AXI style). Review Wally's top-level bus/interconnect logic.
+  \item \textbf{SRAM organization:} Larger L2 SRAMs may be banked or multi-ported. Parameters like \texttt{CACHE\_SRAMLEN} and \texttt{USE\_SRAM} influence memory instantiation.
+  \item \textbf{Write-back buffers:} Consider adding buffers between levels to smooth bursts of write-backs.
+  \item \textbf{Practical files to modify:}
+        \begin{itemize}
+          \item \texttt{config/rv32gc/config.vh} -- add L2 size/associativity/line-size parameters.
+          \item \texttt{src/cache/*} -- extend the cache to talk to a new \texttt{l2cache.sv} controller.
+          \item \texttt{src/lsu/lsu.sv} -- ensure LSU request/response path routes correctly through L2.
+          \item Top-level (e.g.\ \texttt{cvw.sv}, \texttt{src/wally/...}) -- instantiate L2 and connect to AHB and L1s.
+        \end{itemize}
+\end{itemize}
+
+Relevant repository:
+\begin{itemize}
+  \item Wally GitHub repository: \url{https://github.com/openhwgroup/cvw}
+\end{itemize}
+
+\end{document}

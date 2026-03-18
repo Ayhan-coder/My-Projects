@@ -1,0 +1,26 @@
+CMPE 49T HW3 — Auto Summary
+===========================
+
+Student ID (for seed): 2021400219
+Seed used: 2021400219
+
+Training examples: 207, Test examples: 90
+
+Best (lowest) training loss: 0.315459
+AUC-ROC: 0.8768
+AUC-PR: 0.7724
+
+Youden's J best threshold: 0.66 (J=0.6013)
+
+Cost-minimizing threshold (FN=$50k, FP=$2k): 0.03
+Minimum expected cost: $80000
+
+Saved Files:
+- training_loss.png
+- roc_curve.png
+- pr_curve.png
+- total_cost.png
+- weights_2021400219.npy, bias_2021400219.npy, X_test_2021400219.npy, y_test_2021400219.npy
+- summary_before.csv, summary_after.csv
+- metrics_by_threshold.csv, metrics_by_threshold_imbalanced.csv
+- roc_points.csv, pr_points.csv, youden_j.csv, cost_by_threshold.csv
