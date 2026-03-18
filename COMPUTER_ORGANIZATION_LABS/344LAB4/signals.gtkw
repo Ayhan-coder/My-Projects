@@ -1,0 +1,36 @@
+[*]
+[*] GTKWave Analyzer v3.3.121 (w)1999-2024 BSI
+[*] Fri Nov  7 20:40:25 2025
+[*]
+[dumpfile] "/opt/openhwgroup/cvw/sim/verilator/testbench.vcd"
+[dumpfile_mtime] "Fri Nov  7 20:25:49 2025"
+[dumpfile_size] 145781
+[savefile] "/workspaces/labs344/lab4/signals.gtkw"
+[timestart] 210
+[size] 1920 1033
+[pos] -1 -1
+*-4.800000 320 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] testbench.
+[treeopen] testbench.dut.
+[treeopen] testbench.dut.core.
+[treeopen] testbench.dut.core.ieu.
+[treeopen] testbench.dut.core.ieu.c.
+[sst_width] 277
+[signals_width] 162
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@28
+testbench.dut.core.ifu.clk
+@22
+testbench.dut.core.ifu.PCF[31:0]
+testbench.dut.core.ifu.PCD[31:0]
+testbench.dut.core.ifu.PCE[31:0]
+testbench.dut.core.ieu.c.Rs1E[4:0]
+testbench.dut.core.ieu.c.Rs2E[4:0]
+testbench.dut.core.ieu.c.RdE[4:0]
+testbench.dut.core.ieu.c.RdM[4:0]
+testbench.dut.core.ieu.c.RdW[4:0]
+@28
+testbench.dut.core.hzu.StallF
+[pattern_trace] 1
+[pattern_trace] 0

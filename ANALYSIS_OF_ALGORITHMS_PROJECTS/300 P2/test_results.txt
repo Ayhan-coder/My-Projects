@@ -1,0 +1,84 @@
+================================================================================
+MPI-Based Parallel NLP System - Test Results
+Run at: 2025-12-10 20:22:52
+================================================================================
+
+
+Test 1: Pattern 1: End-to-End (2 workers)
+--------------------------------------------------------------------------------
+Pattern: 1, Processes: 3, Test Case: 1
+
+STATUS: ✓ PASSED
+
+OUTPUT:
+Running Pattern 1 with 3 processes.
+Term-Frequency (TF) Result:
+bird: 1
+dog: 1
+fox: 1
+power: 2
+time: 1
+
+
+Test 2: Pattern 2: Linear Pipeline
+--------------------------------------------------------------------------------
+Pattern: 2, Processes: 5, Test Case: 1
+
+STATUS: ✓ PASSED
+
+OUTPUT:
+Running Pattern 2 with 5 processes.
+Term-Frequency (TF) Result:
+bird: 1
+dog: 1
+fox: 1
+power: 2
+time: 1
+
+
+Test 3: Pattern 3: Parallel Pipelines
+--------------------------------------------------------------------------------
+Pattern: 3, Processes: 5, Test Case: 1
+
+STATUS: ✓ PASSED
+
+OUTPUT:
+Running Pattern 3 with 5 processes.
+Term-Frequency (TF) Result:
+bird: 1
+dog: 1
+fox: 1
+power: 2
+time: 1
+
+
+Test 4: Pattern 4: Task Parallelism
+--------------------------------------------------------------------------------
+Pattern: 4, Processes: 5, Test Case: 1
+
+STATUS: ✓ PASSED
+
+OUTPUT:
+Running Pattern 4 with 5 processes.
+Term-Frequency (TF) Result:
+bird: 1
+dog: 1
+fox: 1
+power: 2
+time: 1
+
+Document-Frequency (DF) Result:
+bird: 1
+dog: 1
+fox: 1
+power: 1
+time: 1
+
+
+================================================================================
+SUMMARY
+================================================================================
+Total:  4
+Passed: 4
+Failed: 0
+================================================================================

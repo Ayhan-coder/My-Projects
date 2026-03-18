@@ -1,0 +1,530 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{a4paper, margin=1in}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    language=Python,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red}
+}
+
+\title{CMPE 300: Analysis of Algorithms\\Project 3 - Interactive Proof Systems\\Final Report}
+\author{Ali Ayhan Gunder 2021400219 \and Yigit Memceoktay 2020403076}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Introduction}
+%==============================================================================
+
+This report presents our solutions and analysis for Project 3, which explores Interactive Proof Systems in the context of computational complexity theory. The project covers zero-knowledge proofs for graph 3-coloring and graph isomorphism problems, along with a practical demonstration of exploiting a biased verifier in the 3-coloring protocol.
+
+Interactive proof systems are fundamental to modern cryptography and complexity theory, allowing a \textit{prover} to convince a \textit{verifier} of a statement's truth without revealing unnecessary information. The key properties we analyze are:
+\begin{itemize}
+    \item \textbf{Completeness}: An honest prover can always convince the verifier.
+    \item \textbf{Soundness}: A dishonest prover cannot fool the verifier (except with negligible probability).
+    \item \textbf{Zero-Knowledge}: The verifier learns nothing beyond the truth of the statement.
+\end{itemize}
+
+%==============================================================================
+\section{Q1: Interactive Algorithm for 3-Coloring}
+%==============================================================================
+
+\subsection{Part (a): Problem Definition}
+
+A graph $G = (V, E)$ is \textbf{3-colorable} if there exists a function $c: V \to \{0, 1, 2\}$ such that for every edge $(u, v) \in E$, we have $c(u) \neq c(v)$. In other words, no two adjacent vertices share the same color.
+
+The corresponding decision problem is defined as:
+\[
+\textsc{3Color} = \{ G \mid G \text{ is a graph that admits a valid 3-coloring} \}
+\]
+
+This problem is known to be NP-complete, meaning:
+\begin{enumerate}
+    \item Given a proposed coloring, we can verify its validity in polynomial time (NP).
+    \item Any problem in NP can be reduced to 3-Coloring in polynomial time (NP-hard).
+\end{enumerate}
+
+\subsection{Part (b): Zero-Knowledge Interactive Proof Protocol}
+
+\textbf{Setup:}
+\begin{itemize}
+    \item \textbf{Common Input:} A graph $G = (V, E)$ with $n$ vertices and $m$ edges.
+    \item \textbf{Prover's Secret:} A valid 3-coloring $c: V \to \{0, 1, 2\}$.
+\end{itemize}
+
+\textbf{Protocol (Single Round):}
+\begin{enumerate}
+    \item \textbf{Commitment Phase:}
+    \begin{itemize}
+        \item The Prover selects a random permutation $\pi$ of the colors $\{0, 1, 2\}$.
+        \item The Prover computes a permuted coloring $c'(v) = \pi(c(v))$ for all $v \in V$.
+        \item For each vertex $v$, the Prover creates a cryptographic commitment $\text{Commit}(c'(v), r_v)$ where $r_v$ is a random string.
+        \item The Prover sends all commitments to the Verifier.
+    \end{itemize}
+    
+    \item \textbf{Challenge Phase:}
+    \begin{itemize}
+        \item The Verifier selects an edge $(u, v) \in E$ uniformly at random.
+        \item The Verifier sends $(u, v)$ to the Prover.
+    \end{itemize}
+    
+    \item \textbf{Response Phase:}
+    \begin{itemize}
+        \item The Prover opens the commitments for vertices $u$ and $v$ by revealing $(c'(u), r_u)$ and $(c'(v), r_v)$.
+    \end{itemize}
+    
+    \item \textbf{Verification Phase:}
+    \begin{itemize}
+        \item The Verifier checks that the opened values are consistent with the commitments.
+        \item The Verifier checks that $c'(u) \neq c'(v)$.
+        \item If both checks pass, accept this round; otherwise, reject.
+    \end{itemize}
+\end{enumerate}
+
+The protocol is repeated $k$ times (e.g., $k = m \cdot \log(1/\epsilon)$ for error bound $\epsilon$) with fresh randomness each round.
+
+\subsection{Part (c): Probabilistic Analysis}
+
+\subsubsection{Completeness}
+\textbf{Claim:} If $G$ is 3-colorable and the Prover is honest, the Verifier accepts with probability 1.
+
+\textbf{Proof:} Let $c$ be the valid 3-coloring known to the Prover. For any permutation $\pi$, the permuted coloring $c' = \pi \circ c$ is also valid because permutations are bijections. Specifically:
+\begin{itemize}
+    \item For any edge $(u, v) \in E$: $c(u) \neq c(v)$ (by validity of $c$)
+    \item Since $\pi$ is a bijection: $\pi(c(u)) \neq \pi(c(v))$
+    \item Therefore: $c'(u) \neq c'(v)$
+\end{itemize}
+
+Thus, for any edge the Verifier challenges, the revealed colors will be different, and the Verifier accepts with probability 1 in each round, and hence probability 1 overall.
+
+\subsubsection{Soundness}
+\textbf{Claim:} If $G$ is not 3-colorable, any cheating Prover convinces the Verifier with probability at most $(1 - 1/m)^k$ after $k$ rounds.
+
+\textbf{Proof:} If $G$ is not 3-colorable, then for any coloring $c': V \to \{0, 1, 2\}$ that the Prover commits to, there exists at least one ``bad'' edge $(u, v) \in E$ such that $c'(u) = c'(v)$.
+
+\begin{itemize}
+    \item The commitment scheme is binding, so the Prover cannot change colors after committing.
+    \item The Verifier selects edges uniformly at random, so $\Pr[\text{select bad edge}] \geq \frac{1}{m}$.
+    \item The probability of not catching the Prover in one round is at most $1 - \frac{1}{m}$.
+    \item After $k$ independent rounds, the probability of never catching the Prover is at most:
+    \[
+    \left(1 - \frac{1}{m}\right)^k
+    \]
+\end{itemize}
+
+For $k = m \ln(1/\epsilon)$, we have:
+\[
+\left(1 - \frac{1}{m}\right)^{m \ln(1/\epsilon)} \approx e^{-\ln(1/\epsilon)} = \epsilon
+\]
+
+Thus, soundness error decreases exponentially with the number of rounds.
+
+\subsubsection{Zero-Knowledge (Intuition)}
+
+The protocol is zero-knowledge because the Verifier learns only the colors of two adjacent vertices per round, and these colors are uniformly distributed due to the random permutation $\pi$.
+
+\textbf{Simulator Construction:}
+\begin{enumerate}
+    \item The simulator picks two random distinct colors $(a, b)$ from $\{0, 1, 2\}$.
+    \item For the challenged edge $(u, v)$, it outputs $(a, b)$.
+    \item This distribution is identical to the real protocol since $\pi$ is uniform.
+\end{enumerate}
+
+The key insight is that the random permutation $\pi$ ``masks'' the original coloring structure. Each round reveals only a random pair of distinct colors, which could correspond to any valid coloring. The Verifier cannot correlate information across rounds because $\pi$ is chosen fresh each time.
+
+%==============================================================================
+\section{Q2: Interactive Algorithm for Graph Isomorphism}
+%==============================================================================
+
+\subsection{Part (a): Problem Definition}
+
+Two graphs $G_1 = (V_1, E_1)$ and $G_2 = (V_2, E_2)$ are \textbf{isomorphic} (denoted $G_1 \cong G_2$) if there exists a bijection $\phi: V_1 \to V_2$ such that:
+\[
+(u, v) \in E_1 \iff (\phi(u), \phi(v)) \in E_2
+\]
+
+The decision problem is:
+\[
+\textsc{GI} = \{ (G_1, G_2) \mid G_1 \cong G_2 \}
+\]
+
+Graph Isomorphism is in NP (the isomorphism serves as a polynomial-time verifiable certificate) but is not known to be NP-complete or in P.
+
+\subsection{Part (b): Zero-Knowledge Interactive Protocol}
+
+\textbf{Setup:}
+\begin{itemize}
+    \item \textbf{Common Input:} Two graphs $G_1, G_2$ on $n$ vertices.
+    \item \textbf{Prover's Secret:} An isomorphism $\pi: V_1 \to V_2$ such that $\pi(G_1) = G_2$.
+\end{itemize}
+
+\textbf{Protocol (Single Round):}
+\begin{enumerate}
+    \item \textbf{Commitment:}
+    \begin{itemize}
+        \item The Prover selects a random permutation $\sigma$ of the $n$ vertices.
+        \item The Prover computes $H = \sigma(G_1)$ (equivalently, $H = \sigma \circ \pi^{-1}(G_2)$).
+        \item The Prover sends $H$ to the Verifier (or commits to its adjacency matrix).
+    \end{itemize}
+    
+    \item \textbf{Challenge:}
+    \begin{itemize}
+        \item The Verifier selects a random bit $b \in \{1, 2\}$ uniformly at random.
+        \item The Verifier sends $b$ to the Prover.
+    \end{itemize}
+    
+    \item \textbf{Response:}
+    \begin{itemize}
+        \item If $b = 1$: The Prover sends $\rho = \sigma$ (showing $H \cong G_1$).
+        \item If $b = 2$: The Prover sends $\rho = \sigma \circ \pi^{-1}$ (showing $H \cong G_2$).
+    \end{itemize}
+    
+    \item \textbf{Verification:}
+    \begin{itemize}
+        \item The Verifier checks that $\rho(G_b) = H$.
+        \item If the check passes, accept; otherwise, reject.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Part (c): Probabilistic Analysis}
+
+\subsubsection{Completeness}
+\textbf{Claim:} If $G_1 \cong G_2$ and the Prover knows the isomorphism $\pi$, the Verifier accepts with probability 1.
+
+\textbf{Proof:}
+\begin{itemize}
+    \item If $b = 1$: Prover sends $\sigma$. Since $H = \sigma(G_1)$, the Verifier confirms $\sigma(G_1) = H$. $\checkmark$
+    \item If $b = 2$: Prover sends $\sigma \circ \pi^{-1}$. Since $\pi(G_1) = G_2$ and $H = \sigma(G_1)$:
+    \[
+    (\sigma \circ \pi^{-1})(G_2) = \sigma(\pi^{-1}(G_2)) = \sigma(G_1) = H \quad \checkmark
+    \]
+\end{itemize}
+
+\subsubsection{Soundness}
+\textbf{Claim:} If $G_1 \not\cong G_2$, any cheating Prover succeeds with probability at most $(1/2)^k$ after $k$ rounds.
+
+\textbf{Proof:} If $G_1 \not\cong G_2$, then any graph $H$ can be isomorphic to at most one of $G_1$ or $G_2$ (but not both).
+
+\begin{itemize}
+    \item The Prover must commit to $H$ before knowing $b$.
+    \item If $H \cong G_1$ but $H \not\cong G_2$: Prover can only answer $b = 1$ correctly.
+    \item If $H \cong G_2$ but $H \not\cong G_1$: Prover can only answer $b = 2$ correctly.
+    \item If $H$ is isomorphic to neither: Prover cannot answer either challenge.
+\end{itemize}
+
+Thus, the Prover succeeds with probability at most $1/2$ per round. After $k$ rounds:
+\[
+\Pr[\text{Prover succeeds in all rounds}] \leq \left(\frac{1}{2}\right)^k
+\]
+
+\subsubsection{Zero-Knowledge (Intuition)}
+
+The Verifier sees:
+\begin{enumerate}
+    \item A random graph $H$ isomorphic to both $G_1$ and $G_2$ (since they are isomorphic to each other).
+    \item An isomorphism from $G_b$ to $H$.
+\end{enumerate}
+
+Since $\sigma$ is chosen uniformly at random:
+\begin{itemize}
+    \item $H$ is a uniformly random graph from the isomorphism class of $G_1$ (and $G_2$).
+    \item The revealed isomorphism is uniformly random among all isomorphisms from $G_b$ to $H$.
+\end{itemize}
+
+A simulator can perfectly simulate the transcript by:
+\begin{enumerate}
+    \item Picking a random $b' \in \{1, 2\}$.
+    \item Generating $H = \rho(G_{b'})$ for a random permutation $\rho$.
+    \item If $b = b'$, output $\rho$; otherwise, rewind and try again.
+\end{enumerate}
+
+The specific isomorphism $\pi$ between $G_1$ and $G_2$ is never revealed.
+
+%==============================================================================
+\section{Bonus Q3: Exploiting the Biased Verifier}
+%==============================================================================
+
+\subsection{Problem Overview}
+
+In this section, we demonstrate that the soundness of the 3-coloring interactive proof relies critically on the \textbf{uniform randomness} of the Verifier's edge selection. The provided verifier has a bias: it preferentially challenges edges among vertices with smaller indices.
+
+Our goal is to construct colorings that are \textit{invalid} (have conflicts) but concentrate those conflicts in rarely-challenged regions of the graph.
+
+\subsection{Methodology}
+
+\subsubsection{Graph Generation}
+We generated 20 non-3-colorable graphs of varying sizes using the provided generator (treated as a black box, as required by the assignment). Each graph file stores $n$, $m$, and then $m$ edges.
+
+We used sizes up to 1000 vertices, as suggested:
+10, 15, 20, 30, 40, 50, 60, 70, 80, 100, 120, 150, 200, 250, 300, 400, 500, 600, 800, 1000.
+
+\subsubsection{Adversarial Coloring Strategy}
+The verifier is \emph{not} uniform: in our provided implementation (\texttt{mock\_zk\_verifier.py}), it samples from a \emph{biased subset} of edges with high probability (80\%), where both endpoints lie in the first $\lfloor n/3 \rfloor$ vertices. Therefore, a natural adversarial approach is to try to produce colorings that:
+\begin{itemize}
+    \item have few or no conflicts among the vertices that are likely to be checked, and
+    \item ``push'' remaining conflicts to edges that are less likely to be sampled.
+\end{itemize}
+
+In our submission we do \textbf{not} implement a cheating prover; instead, we generate a fixed coloring file and use the provided \texttt{honest\_prover.py}, exactly as required.
+
+\subsubsection{Coloring Algorithm (Implemented Heuristic)}
+Our \texttt{solve\_q3.py} implements a simple local-search heuristic to \emph{minimize the total number of conflicts} (not necessarily to eliminate them, since the graphs are generated to be non-3-colorable). At a high level:
+\begin{itemize}
+    \item Start from a random 3-color assignment.
+    \item Repeatedly pick a random vertex and attempt a recoloring step.
+    \item Accept a recoloring greedily if it does not increase the number of conflicts incident to that vertex.
+    \item Track the best coloring seen and output it.
+\end{itemize}
+
+The key point is that even a modest reduction in conflicts can yield a noticeably higher acceptance rate when the verifier's sampling distribution avoids many of the remaining conflicting edges.
+
+\subsection{Experimental Results}
+
+We ran each graph-coloring pair through 20 trials with 10 rounds per trial.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\textbf{Graph ID} & \textbf{Size ($n$)} & \textbf{Conflicts} & \textbf{Acceptance Rate (\%)} \\ \midrule
+1  & 10   & 6   & 45 \\
+2  & 15   & 9   & 45 \\
+3  & 20   & 7   & 70 \\
+4  & 30   & 14  & 55 \\
+5  & 40   & 15  & 35 \\
+6  & 50   & 21  & 35 \\
+7  & 60   & 17  & 70 \\
+8  & 70   & 21  & 60 \\
+9  & 80   & 29  & 60 \\
+10 & 100  & 40  & 70 \\
+11 & 120  & 24  & 75 \\
+12 & 150  & 53  & 45 \\
+13 & 200  & 64  & 65 \\
+14 & 250  & 80  & 60 \\
+15 & 300  & 94  & 75 \\
+16 & 400  & 123 & 70 \\
+17 & 500  & 154 & 55 \\
+18 & 600  & 199 & 55 \\
+19 & 800  & 258 & 45 \\
+20 & 1000 & 302 & 70 \\ \bottomrule
+\end{tabular}
+\caption{Measured conflicts and acceptance rates (20 trials per graph, 10 rounds per trial). Despite all colorings being invalid (having conflicts), the biased verifier accepts them 35--75\% of the time.}
+\label{tab:results}
+\end{table}
+
+\subsection{Analysis}
+
+\subsubsection{Key Observations}
+\begin{enumerate}
+    \item \textbf{Size effects:} In practice, acceptance rates can change significantly with graph size, because both the number of edges and the verifier's biased sampling region scale with $n$.
+    \begin{itemize}
+        \item If many conflicts occur outside the verifier's frequently-sampled edge subset, they may be detected rarely.
+        \item The same number of conflicts can be ``harder to find'' when sampling is biased away from where conflicts are.
+    \end{itemize}
+    
+    \item \textbf{Bias exploitation:} With 80\% of challenges drawn from a biased subset of edges:
+    \begin{itemize}
+        \item Conflicts concentrated outside this subset are less likely to be detected.
+        \item Even if the total number of conflicts is nonzero, the verifier may miss them for many rounds.
+    \end{itemize}
+    
+    \item \textbf{Probability analysis:} Let $q_b$ be the probability that a \emph{biased} challenge edge is conflicting under our produced coloring, and let $q_u$ be the probability that an \emph{unbiased} (fully random) challenge edge is conflicting. Then the per-round rejection probability is:
+    \[
+    q = 0.8\,q_b + 0.2\,q_u,
+    \]
+    so the acceptance probability over $k$ rounds is:
+    \[
+    \Pr[\text{Accept}] = (1 - q)^k.
+    \]
+    This highlights why lowering $q_b$ (conflicts inside the biased subset) can disproportionately increase the overall acceptance probability.
+\end{enumerate}
+
+\subsubsection{Why This Doesn't Contradict Theory}
+
+The theoretical soundness guarantee assumes:
+\begin{enumerate}
+    \item \textbf{Uniform Edge Selection:} The Verifier chooses edges uniformly at random.
+    \item \textbf{Cryptographic Commitments:} The Prover commits to colors before seeing the challenge.
+\end{enumerate}
+
+Our experiment violates the first assumption. With uniform selection, each conflict edge has probability $1/m$ of being caught per round. With biased selection:
+\[
+\Pr[\text{catch conflict}] = 0.8 \cdot \Pr[\text{conflict in biased region}] + 0.2 \cdot \Pr[\text{conflict overall}]
+\]
+
+If we ensure few (or zero) conflicts in the biased region, the dominant term $0.8\,q_b$ becomes small, and the verifier's ability to catch conflicts relies mostly on the remaining 20\% of challenges.
+
+\textbf{Lesson:} The randomness quality in the Verifier's challenges is essential for soundness. A predictable or biased Verifier can be exploited by an adversarial input distribution.
+
+%==============================================================================
+\section{Bonus Q4: Constructing Zero-Knowledge Proofs for NP}
+%==============================================================================
+
+\subsection{General Methodology}
+
+Any problem in NP can be proven in zero-knowledge using the following construction:
+
+\subsubsection{Step 1: Reduction to NP-Complete Problem}
+Since 3-Coloring (or SAT, Hamiltonian Path, etc.) is NP-complete:
+\begin{itemize}
+    \item For any language $L \in \text{NP}$, there exists a polynomial-time reduction $f$ such that $x \in L \iff f(x) \in \textsc{3Color}$.
+    \item The reduction preserves witness structure: a certificate for $x$ can be transformed into a valid 3-coloring.
+\end{itemize}
+
+\subsubsection{Step 2: Witness Translation}
+\begin{itemize}
+    \item The Prover holds a witness $w$ for $x \in L$.
+    \item Using the reduction's logic, the Prover constructs the corresponding witness for the NP-complete problem (e.g., a valid 3-coloring of $f(x)$).
+\end{itemize}
+
+\subsubsection{Step 3: Apply Standard ZK Protocol}
+\begin{itemize}
+    \item Run the zero-knowledge protocol for the NP-complete problem.
+    \item The Verifier is convinced that $f(x) \in \textsc{3Color}$, hence $x \in L$.
+\end{itemize}
+
+\subsubsection{Step 4: Cryptographic Commitments}
+Commitments ensure:
+\begin{itemize}
+    \item \textbf{Hiding:} The Verifier cannot determine the committed value before opening.
+    \item \textbf{Binding:} The Prover cannot change the committed value after committing.
+\end{itemize}
+
+Common schemes include Pedersen commitments (computationally binding, perfectly hiding) or hash-based commitments.
+
+\subsubsection{Step 5: Probabilistic Soundness}
+\begin{itemize}
+    \item Each round catches a cheating Prover with probability at least $1/\text{poly}(n)$.
+    \item After $k$ rounds, cheating probability drops to $(1 - 1/\text{poly}(n))^k$.
+    \item For $k = \Omega(n \cdot \text{poly}(n))$, this becomes negligible.
+\end{itemize}
+
+%==============================================================================
+\section{Bonus Q5: Interactive Proof for Hamiltonian Path}
+%==============================================================================
+
+\subsection{Problem Definition}
+\[
+\textsc{HP} = \{ G \mid G \text{ contains a Hamiltonian path} \}
+\]
+
+A Hamiltonian path visits every vertex exactly once.
+
+\subsection{Zero-Knowledge Protocol}
+
+\textbf{Setup:}
+\begin{itemize}
+    \item \textbf{Common Input:} Graph $G = (V, E)$ with $n$ vertices.
+    \item \textbf{Prover's Secret:} A Hamiltonian path $P = (v_1, v_2, \ldots, v_n)$.
+\end{itemize}
+
+\textbf{Protocol (Single Round):}
+\begin{enumerate}
+    \item \textbf{Commitment:}
+    \begin{itemize}
+        \item Prover selects a random permutation $\pi$ of vertices.
+        \item Prover computes $H = \pi(G)$ and commits to its adjacency matrix entry-by-entry.
+    \end{itemize}
+    
+    \item \textbf{Challenge:}
+    \begin{itemize}
+        \item Verifier sends random bit $b \in \{1, 2\}$.
+    \end{itemize}
+    
+    \item \textbf{Response:}
+    \begin{itemize}
+        \item If $b = 1$: Prover reveals $\pi$ and opens all adjacency matrix entries.
+        \item If $b = 2$: Prover reveals the path $\pi(P)$ in $H$ by opening only the $n-1$ path edges.
+    \end{itemize}
+    
+    \item \textbf{Verification:}
+    \begin{itemize}
+        \item If $b = 1$: Verifier checks $H = \pi(G)$.
+        \item If $b = 2$: Verifier checks that the revealed edges form a valid Hamiltonian path in $H$.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Analysis}
+
+\subsubsection{Completeness}
+If $G$ has a Hamiltonian path $P$:
+\begin{itemize}
+    \item For $b = 1$: Prover reveals the isomorphism. Check passes trivially.
+    \item For $b = 2$: Prover reveals $\pi(P)$, which is a valid Hamiltonian path in $H = \pi(G)$.
+\end{itemize}
+
+\subsubsection{Soundness}
+If $G$ has no Hamiltonian path:
+\begin{itemize}
+    \item To pass $b = 1$: Need $H \cong G$, so $H$ also has no Hamiltonian path.
+    \item To pass $b = 2$: Need $H$ to have a Hamiltonian path.
+\end{itemize}
+
+These requirements are contradictory. The Prover can satisfy at most one, so:
+\[
+\Pr[\text{success per round}] \leq \frac{1}{2}
+\]
+
+After $k$ rounds: $\Pr[\text{cheat}] \leq (1/2)^k$.
+
+\subsubsection{Zero-Knowledge}
+\begin{itemize}
+    \item For $b = 1$: Verifier sees a random isomorphic copy of $G$ (no information about the path).
+    \item For $b = 2$: Verifier sees $n-1$ edges forming a path on random vertex labels. Since $\pi$ is random, the path vertices are a random permutation of $\{1, \ldots, n\}$---this is just a random sequence with no correlation to the original path $P$.
+\end{itemize}
+
+\textbf{Simulator:} 
+\begin{enumerate}
+    \item Pick random $b'$.
+    \item If $b' = 1$: Generate random $H = \sigma(G)$, output $\sigma$.
+    \item If $b' = 2$: Create $H$ with a random Hamiltonian path embedded.
+    \item If $b \neq b'$: Rewind and retry.
+\end{enumerate}
+
+%==============================================================================
+\section{Conclusion}
+%==============================================================================
+
+This project demonstrated the elegant interplay between randomness, computational complexity, and cryptography in interactive proof systems. Key takeaways include:
+
+\begin{enumerate}
+    \item \textbf{Zero-Knowledge is Powerful:} NP-complete problems can be proven without revealing witnesses, enabling applications in authentication and secure computation.
+    
+    \item \textbf{Randomness is Essential:} The Verifier's random challenges prevent the Prover from ``gaming'' the system. Biased randomness (as in Q3) breaks soundness.
+    
+    \item \textbf{Repetition Amplifies Security:} While single-round soundness may be weak ($1 - 1/m$ or $1/2$), polynomial repetition achieves exponentially small error.
+    
+    \item \textbf{Assumptions Matter:} The simplified protocol in Q3 omits cryptographic commitments and also uses a biased sampling strategy. In the full theoretical protocol, commitments (binding/hiding) and uniform randomness are key ingredients in the soundness and zero-knowledge arguments.
+\end{enumerate}
+
+%==============================================================================
+\section*{References}
+%==============================================================================
+\begin{enumerate}
+    \item Goldreich, O., Micali, S., \& Wigderson, A. (1991). Proofs that yield nothing but their validity. \textit{Journal of the ACM}.
+    \item Goldwasser, S., Micali, S., \& Rackoff, C. (1989). The knowledge complexity of interactive proof systems. \textit{SIAM Journal on Computing}.
+    \item Arora, S., \& Barak, B. (2009). \textit{Computational Complexity: A Modern Approach}. Cambridge University Press.
+\end{enumerate}
+
+\end{document}
