@@ -1,7 +1,0 @@
-{
-	"github.copilot.chat.codeGeneration.instructions": [
-		{
-			"text": "This workspace is in a dev container running on \"AlmaLinux 10.0 (Purple Lion)\".\n\nUse `\"$BROWSER\" <url>` to open a webpage in the host's default browser.\n\nSome of the command line tools available on the `PATH`: `dnf`, `yum`, `rpm`, `git`, `curl`, `wget`, `ssh`, `scp`, `gpg`, `find`, `grep`, `zip`, `unzip`, `tar`, `gzip`"
-		}
-	]
-}

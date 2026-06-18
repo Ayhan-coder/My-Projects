@@ -1,1 +1,0 @@
-By opening up the `index.html` under the `playwright-report` folder, you can see and navigate through the end to end tests with interfaces.
