@@ -1,0 +1,88 @@
+=================================================================================
+SPEECH EXTRACTION RESULTS – CMPE362 HW4
+=================================================================================
+
+AVAILABLE OUTPUT FILES (listen to compare):
+-------------------------------------------
+
+1. speech_mild.wav
+   • Preset: MILD
+   • Alpha: 1.8 (gentle background suppression)
+   • Best for: Maximum naturalness, keeps some background ambiance
+   • Use when: You want clear speech but natural cafe atmosphere retained
+
+2. speech_enhanced.wav  ⭐ RECOMMENDED
+   • Preset: MODERATE
+   • Alpha: 2.8 (balanced suppression)
+   • Best for: Good balance of clarity and naturalness
+   • Use when: Standard use case – clear speech with minimal music
+
+3. speech_clean.wav
+   • Method: Basic spectral subtraction (v2)
+   • More aggressive but may sound thin
+   • Preserves only 5% of original energy
+
+4. music_filtered.wav
+   • Method: Simple bandpass (300–3400 Hz)
+   • Keeps ALL sound in speech band (including music)
+   • Not true separation, just frequency filtering
+
+
+BACKGROUND MUSIC FILES:
+----------------------
+• music_background.wav – extracted background from v3
+• music_residual.wav   – extracted background from v2
+
+
+HOW TO ADJUST:
+-------------
+If you want EVEN LESS background suppression:
+  → Edit extract_speech_v3.m, line 18: change 'moderate' to 'mild'
+  → Or use speech_mild.wav (already generated)
+
+If you want MORE aggressive suppression:
+  → Edit extract_speech_v3.m, line 18: change 'moderate' to 'aggressive'
+  → Then run: matlab -batch "extract_speech_v3"
+
+
+COMPARISON FIGURES:
+------------------
+• spectrogram_enhanced.png     – shows v3 (moderate) processing stages
+• spectrogram_subtraction.png  – shows v2 processing stages
+• comparison_all_methods.png   – side-by-side of all methods
+
+
+KEY IMPROVEMENTS IN V3 (speech_enhanced.wav & speech_mild.wav):
+---------------------------------------------------------------
+✓ Multi-segment noise estimation (beginning + end + quietest 20% of frames)
+✓ Perceptual weighting (emphasizes 1-4 kHz critical speech band)
+✓ Temporal smoothing (reduces "musical noise" artifacts)
+✓ Spectral smoothing (prevents random frequency spikes)
+✓ Gentle expander instead of hard gate (more natural dynamics)
+✓ Optimized speech bandpass (250–3800 Hz vs 300–3400 Hz)
+✓ High-pass filter to remove sub-bass rumble
+
+
+ENERGY PRESERVATION:
+-------------------
+Original RMS:         0.3215 (100%)
+speech_mild.wav:      ~0.08  (~25%) – most natural
+speech_enhanced.wav:  0.0586 (18%)  – balanced
+speech_clean.wav:     0.0154 (5%)   – very aggressive
+
+
+RECOMMENDATION:
+--------------
+🎯 Listen to speech_enhanced.wav first (moderate preset)
+   If too much music remains → try aggressive preset
+   If too "processed" sounding → try speech_mild.wav
+
+
+TO RE-RUN ANY METHOD:
+--------------------
+matlab -batch "extract_speech_v3"      # moderate (default)
+matlab -batch "extract_speech_mild"     # mild version
+matlab -batch "extract_speech_v2"       # v2 baseline
+matlab -batch "compare_extractions"     # generate comparison figure
+
+=================================================================================

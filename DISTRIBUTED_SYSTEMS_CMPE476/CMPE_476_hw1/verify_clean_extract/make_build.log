@@ -1,0 +1,4 @@
+gcc -std=c11 -D_GNU_SOURCE -Wall -Wextra -Wpedantic -O2 -g -c threadserv.c -o threadserv.o
+gcc  -o threadserv threadserv.o protocol.o buffer.o -lpthread
+gcc -std=c11 -D_GNU_SOURCE -Wall -Wextra -Wpedantic -O2 -g -c epollserv.c -o epollserv.o
+gcc  -o epollserv epollserv.o protocol.o buffer.o -lpthread

@@ -1,0 +1,342 @@
+\documentclass[12pt, a4paper]{article}
+
+% ---- Packages ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{fancyhdr}
+
+\geometry{margin=2.5cm}
+
+% ---- Code listing style ----
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red!70!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    backgroundcolor=\color{gray!5},
+    tabsize=4,
+    showstringspaces=false
+}
+
+% ---- Header / Footer ----
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{CMPE 362 -- HW3}
+\lhead{Ali Ayhan Günder - 2021400219}
+\cfoot{\thepage}
+
+% ---- Title ----
+\title{
+    \vspace{-1cm}
+    \textbf{CMPE 362 -- Homework 3} \\[0.3cm]
+    \Large Aliasing in Audio, Image, and Video
+}
+\author{
+    Ali Ayhan Günder \\
+    Student ID: 2021400219 \\[0.2cm]
+    \textit{CMPE 362 -- Signal Processing, Spring 2026}
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\begin{abstract}
+This report investigates aliasing across three signal domains---audio, image, and video---demonstrating that the Nyquist--Shannon Sampling Theorem governs all three, despite their different perceptual manifestations. Through MATLAB experiments, we show how undersampling creates structured phantom signals: a false 200\,Hz tone from a 1800\,Hz source, Moir\'{e} patterns from a 2D chirp function, and the wagon wheel illusion from temporal undersampling of rotational motion.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{Introduction}
+%==========================================================================
+
+Aliasing is a fundamental artifact that arises when a continuous signal is sampled at a rate insufficient to capture its highest frequency content. When the sampling rate violates the Nyquist criterion, high-frequency components do not simply vanish---they \emph{masquerade} as lower-frequency components, producing deterministic phantom signals that are indistinguishable from genuine low-frequency content.
+
+This report investigates aliasing across three signal domains:
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Audio:} A 1800\,Hz cosine tone sampled below and above the Nyquist rate.
+    \item \textbf{Image:} A 2D chirp function $\cos\!\big((x+2y)^2\big)$ rendered at decreasing resolutions.
+    \item \textbf{Video:} The wagon wheel effect as temporal aliasing of rotational motion.
+\end{enumerate}
+
+We demonstrate that all three phenomena are governed by the same mathematical principle.
+
+%==========================================================================
+\section{Theoretical Background}
+%==========================================================================
+
+\subsection{The Nyquist--Shannon Sampling Theorem}
+
+A band-limited continuous signal with maximum frequency $f_{\max}$ can be perfectly reconstructed from its samples if and only if:
+\begin{equation}
+    f_s > 2 \cdot f_{\max}
+    \label{eq:nyquist}
+\end{equation}
+where $f_s$ is the sampling rate. The critical threshold $f_N = f_s / 2$ is called the \textbf{Nyquist frequency}.
+
+\subsection{Frequency Folding}
+
+When a signal of frequency $f$ is sampled at rate $f_s < 2f$, the sampled signal appears as a different, lower-frequency signal. The apparent (alias) frequency is:
+\begin{equation}
+    f_{\text{alias}} = \left| f - k \cdot f_s \right|, \quad k = \text{round}(f / f_s)
+    \label{eq:alias-general}
+\end{equation}
+
+For the common case where $f_s/2 < f < f_s$:
+\begin{equation}
+    f_{\text{alias}} = f_s - f
+    \label{eq:alias-simple}
+\end{equation}
+
+This ``frequency folding'' around $f_N$ is the core mechanism behind all aliasing phenomena examined in this report.
+
+%==========================================================================
+\section{Part A -- Audio Aliasing}
+%==========================================================================
+
+\subsection{Experiment Setup}
+
+We generate a pure cosine tone at $f = 1800$\,Hz and sample it at two different rates (2000\,Hz and 4000\,Hz). Additionally, a reference tone at 200\,Hz sampled at 2000\,Hz is generated for comparison.
+
+\begin{table}[H]
+\centering
+\caption{Audio aliasing experiment configurations.}
+\label{tab:audio-config}
+\begin{tabular}{@{}clcccc@{}}
+\toprule
+\textbf{Config} & \textbf{Signal} & $f_s$ \textbf{(Hz)} & $f_N$ \textbf{(Hz)} & \textbf{Nyquist OK?} & $f_{\text{alias}}$ \textbf{(Hz)} \\
+\midrule
+A & $\cos(2\pi \cdot 1800\,t)$ & 4000 & 2000 & Yes & 1800 \\
+B & $\cos(2\pi \cdot 1800\,t)$ & 2000 & 1000 & No  & 200  \\
+Ref & $\cos(2\pi \cdot 200\,t)$ & 2000 & 1000 & Yes & 200  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{MATLAB Implementation}
+
+\begin{lstlisting}[caption={Audio signal generation and spectrogram computation.}]
+f = 1800; dur = 2;
+
+% Config A: 1800 Hz @ fs=4000 -> Properly sampled
+fs2 = 4000; t2 = 0:1/fs2:dur-1/fs2;
+y2 = cos(2*pi*f*t2);
+
+% Config B: 1800 Hz @ fs=2000 -> Aliased to 200 Hz
+fs1 = 2000; t1 = 0:1/fs1:dur-1/fs1;
+y1 = cos(2*pi*f*t1);
+
+% Reference: 200 Hz @ fs=2000
+y_low = cos(2*pi*200*t1);
+\end{lstlisting}
+
+Spectrograms are computed using a custom Short-Time Fourier Transform (STFT) implementation with a 256-sample Hamming window and 50\% overlap ($n_{\text{overlap}} = 128$).
+
+\subsection{Spectrogram Results}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{\detokenize{Audio Aliasing Spectrograms.png}}
+    \caption{Audio spectrograms. \textbf{Top:} 200\,Hz at $f_s=2000$\,Hz. \textbf{Middle:} 1800\,Hz at $f_s=2000$\,Hz (aliased to 200\,Hz). \textbf{Bottom:} 1800\,Hz at $f_s=4000$\,Hz.}
+    \label{fig:audio-spectrograms}
+\end{figure}
+
+\subsection{Analysis}
+
+\paragraph{Config A ($f_s = 4000$\,Hz):}
+The Nyquist condition is satisfied ($1800 < 2000$). The spectrogram shows a clean horizontal band at 1800\,Hz, faithfully representing the original tone.
+
+\paragraph{Config B ($f_s = 2000$\,Hz):}
+The alias frequency is:
+\begin{equation}
+    f_{\text{alias}} = f_s - f = 2000 - 1800 = 200 \text{\,Hz}
+\end{equation}
+The sampled waveform is \textbf{mathematically identical} to a genuine 200\,Hz cosine. The spectrogram shows a band at 200\,Hz---indistinguishable from the reference. When played back, both sound like the same low-pitched hum.
+
+\paragraph{Perceptual consequence:} A listener cannot distinguish whether the source was a 1800\,Hz tone sampled too slowly or a genuine 200\,Hz tone. The original high-frequency information is \textbf{irrecoverably lost}.
+
+%==========================================================================
+\section{Part B -- Image Aliasing}
+%==========================================================================
+
+\subsection{Experiment Setup}
+
+We render the 2D function:
+\begin{equation}
+    I(x, y) = \cos\!\Big((x + 2y)^2\Big), \quad x \in (-10, 10), \; y \in (-10, 10)
+    \label{eq:chirp}
+\end{equation}
+
+This is a \textbf{2D chirp signal}: the argument $(x + 2y)^2$ means the instantaneous spatial frequency increases quadratically as we move away from the line $x + 2y = 0$. Near that line, the pattern has low frequency (wide bands); far from it, the frequency is extremely high (narrow bands).
+
+We sample this function at four resolutions: $2000 \times 2000$, $500 \times 500$, $150 \times 150$, and $50 \times 50$.
+
+\subsection{MATLAB Implementation}
+
+\begin{lstlisting}[caption={Image generation at multiple resolutions.}]
+res_levels = [2000, 500, 150, 50];
+images = cell(1, length(res_levels));
+
+for i = 1:length(res_levels)
+    res = res_levels(i);
+    [x, y] = meshgrid(linspace(-10, 10, res), ...
+                       linspace(-10, 10, res));
+    images{i} = cos((x + 2*y).^2);
+end
+\end{lstlisting}
+
+\subsection{Results}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{\detokenize{Image Aliasing.png}}
+    \caption{Image samples of $I(x,y)=\cos((x+2y)^2)$ at four resolutions ($2000\times2000$, $500\times500$, $150\times150$, $50\times50$). As resolution decreases, Moir\'{e} patterns (phantom low-frequency structures) appear due to spatial aliasing.}
+    \label{fig:image-aliasing}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Observations at each resolution level.}
+\label{tab:image-obs}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Resolution} & \textbf{Observation} \\
+\midrule
+$2000 \times 2000$ & Clean chirp---hyperbolic fringes centered on $x + 2y = 0$, thinning toward corners. \\
+$500 \times 500$ & Center sharp; faint false patterns appear at high-frequency edges. \\
+$150 \times 150$ & \textbf{Moir\'{e} patterns emerge dramatically.} Phantom large-scale rings visible. \\
+$50 \times 50$ & Entirely dominated by aliased macro-patterns. True structure obscured. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis}
+
+The spatial sampling rate is $f_s = \text{resolution} / 20$ samples per unit length (since $x$ spans 20 units). The local spatial frequency of $\cos((x+2y)^2)$ along the gradient direction $\nabla(x+2y)^2 = 2(x+2y)(1, 2)$ is:
+\begin{equation}
+    f_{\text{local}} = \frac{1}{2\pi} \cdot 2|x + 2y| \cdot \sqrt{1^2 + 2^2} = \frac{2\sqrt{5}}{\pi}|x + 2y|
+\end{equation}
+
+This frequency increases without bound as $|x + 2y|$ grows. Therefore, no matter how high the resolution, there will always be a region near the corners where the spatial Nyquist limit is violated. At lower resolutions, the Nyquist boundary shrinks toward the center, and high-frequency content everywhere else \textbf{folds back} into low-frequency Moir\'{e} patterns.
+
+\textbf{Key insight:} The Moir\'{e} patterns are not noise or blur---they are \textbf{structured false signals} created by frequency folding, exactly analogous to the 200\,Hz phantom tone in the audio experiment.
+
+%==========================================================================
+\section{Part C -- Video Aliasing (Wagon Wheel Effect)}
+%==========================================================================
+
+\subsection{The Phenomenon}
+
+In film or video, a spinning wheel sometimes appears to:
+\begin{itemize}
+    \item Rotate \textbf{backwards} (wrong direction),
+    \item Appear \textbf{stationary} (frozen), or
+    \item Rotate at the \textbf{wrong speed}.
+\end{itemize}
+This is the temporal equivalent of the audio and image aliasing demonstrated above.
+
+\subsection{Mapping to Sampling Theory}
+
+\begin{table}[H]
+\centering
+\caption{Aliasing concepts mapped across domains.}
+\label{tab:domain-map}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Concept} & \textbf{Audio Domain} & \textbf{Video Domain} \\
+\midrule
+Continuous signal   & Sound wave                  & Continuous wheel rotation \\
+Signal frequency    & Tone frequency $f$ (Hz)     & Spoke angular rate (rev/s) \\
+Sampling rate       & $f_s$ (samples/s)           & Frame rate (FPS) \\
+Nyquist frequency   & $f_s / 2$                   & FPS / 2 \\
+Aliased output      & False lower-pitched tone    & False rotation direction/speed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Mathematical Description}
+
+Consider a wheel with $N$ evenly spaced spokes, rotating at $R$ revolutions per second, filmed at $F$ frames per second. The angular displacement of the nearest spoke per frame is:
+\begin{equation}
+    \Delta\theta = \frac{R}{F} \pmod{1/N}
+\end{equation}
+
+When $\Delta\theta > \frac{1}{2N}$ (i.e., the spoke moves more than half a spoke-spacing between frames), temporal aliasing occurs:
+
+\begin{itemize}
+    \item If a spoke advances by \emph{almost} one full spoke-spacing between frames, it appears to have moved \textbf{backwards by a tiny amount}---the wheel appears to reverse.
+    \item If it advances \emph{exactly} one spoke-spacing, the wheel appears \textbf{stationary}.
+    \item If it advances \emph{slightly more} than one spacing, it appears to rotate \textbf{slowly forward}.
+\end{itemize}
+
+\subsection{The Negative Frequency Analogy}
+
+In the audio experiment, 1800\,Hz sampled at 2000\,Hz aliases to 200\,Hz. In the discrete-time Fourier domain, the alias sits at $-200$\,Hz on one side of the spectrum---a \textbf{negative frequency}. For real-valued audio signals, positive and negative frequencies are conjugate-symmetric:
+\begin{equation}
+    X(-f) = X^*(f)
+\end{equation}
+so $-200$\,Hz sounds identical to $+200$\,Hz. Humans perceive only the magnitude, not the sign.
+
+In video, however, \textbf{direction is visible}. The negative frequency manifests as \textbf{reverse rotation}. This is why the wagon wheel effect is such a powerful demonstration of aliasing---it lets us \emph{see} the sign of the aliased frequency that is hidden in audio.
+
+%==========================================================================
+\section{Cross-Domain Comparison}
+%==========================================================================
+
+\begin{table}[H]
+\centering
+\caption{Unified comparison of aliasing across all three domains.}
+\label{tab:cross-domain}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}p{2.8cm}p{3.5cm}p{3.5cm}p{3.5cm}@{}}
+\toprule
+\textbf{Aspect} & \textbf{Audio} & \textbf{Image} & \textbf{Video} \\
+\midrule
+Signal & $\cos(2\pi \cdot 1800\,t)$ & $\cos((x{+}2y)^2)$ & Spoke angular position \\
+Sample rate & 2000\,Hz (temporal) & 150\,px/row (spatial) & 24 FPS (temporal) \\
+Aliasing artifact & Phantom 200\,Hz tone & Moir\'{e} fringes & Backward rotation \\
+Perception & Hear wrong pitch & See false patterns & See wrong direction \\
+Root cause & $f > f_s/2$ & $f_{\text{spatial}} > f_{N,\text{spatial}}$ & $f_{\text{spoke}} > \text{FPS}/2$ \\
+Reversible? & No & No & No \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Unified principle:} In every domain, when the signal's frequency exceeds half the sampling rate, the sampled representation folds the true frequency into a false lower one. The artifact is not random noise---it is a deterministic, structured phantom signal.
+
+%==========================================================================
+\section{Conclusion}
+%==========================================================================
+
+This homework demonstrated aliasing across three signal modalities:
+
+\begin{enumerate}
+    \item \textbf{Audio:} A 1800\,Hz tone sampled at 2000\,Hz becomes indistinguishable from 200\,Hz, confirming the alias formula $f_{\text{alias}} = f_s - f$.
+    \item \textbf{Image:} The chirp function $\cos((x+2y)^2)$ produces striking Moir\'{e} patterns when undersampled, as high spatial frequencies fold into phantom low-frequency structures.
+    \item \textbf{Video:} The wagon wheel effect visually reveals what audio hides---the \emph{sign} of the aliased frequency---because reverse rotation corresponds to a negative frequency component.
+\end{enumerate}
+
+All three phenomena are governed by the same Nyquist--Shannon theorem. Aliasing is not domain-specific; it is a universal consequence of insufficient sampling.
+
+\end{document}

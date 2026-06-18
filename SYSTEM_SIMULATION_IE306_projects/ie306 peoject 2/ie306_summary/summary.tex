@@ -1,0 +1,1441 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{textcomp}
+\usepackage{underscore}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,keepspaces=true}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\begin{document}
+
+\section*{Lecture 01 Summary: Introduction to Simulation}
+\textbf{Systems Simulation}
+Kerem Demirtas --- Boğaziçi University, IE 306, Spring 2026
+
+\subsection*{1. Why Simulation? Real-World Motivation}
+Complex systems with \textbf{feedback, interactions, and randomness} produce non-obvious behavior:
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{Black Friday surge}: 5$\times$ traffic in 10 minutes $\rightarrow$ latency explosion (not intuitive).
+\item \textbf{Bank queue}: 3 tellers + sudden arrival surge $\rightarrow$ long waits. \textit{Trade-off?} Add a 4th teller?
+\item \textbf{Supply chain}: Random demand + random lead time $\rightarrow$ stockouts \textit{or} excess inventory.
+\end{itemize}
+
+\textbf{Humans are poor at reasoning} about feedback loops, emergent patterns, and stochastic processes analytically.
+
+\subsection*{2. Core Definitions}
+\textbf{System} (course definition)  
+A set of \textbf{entities} (components) that \textbf{interact over time}, forming an organized whole whose behavior we study.
+
+\textbf{Simulation} (course definition)  
+The \textbf{imitation} of a real system's operation over time, using a \textbf{model} so we can run experiments safely and repeatedly.
+
+\textbf{Textbook view} (Banks, Carson, Nelson \& Nicol)  
+``The imitation of the operation of a real-world process or system over time.''
+
+\subsection*{3. Simulation: A Third Way of Doing Science}
+\begin{verbatim}
+| Approach              | Strengths                          | Weaknesses                              | Typical Use                  |
+|-----------------------|------------------------------------|-----------------------------------------|------------------------------|
+| **Real Experiments**  | Direct reality                     | Costly, risky, sometimes impossible    | Physics, chemistry, biology |
+| **Mathematical Analysis** | Elegant, exact (when solvable) | Limited by tractability                | LP, queueing theory         |
+| **Simulation**        | Safe, cheap, repeatable, flexible | Requires skill; results are estimates  | **This course**             |
+\end{verbatim}
+
+\textbf{Simulation borrows} modeling + experimentation without physical risk or math limits.
+
+\subsection*{4. Ways to Study a System}
+\textbf{System}
++-- Experiment with Actual System (costly, risky, disruptive)  
++-- Experiment with a \textbf{Model}  
+  +-- Physical Model (wind tunnel)  
+  +-- Mathematical Model  
+    +-- Analytical Solution (queuing formulas)  
+    +-- \textbf{Simulation} $\leftarrow$ \textbf{This course}
+
+\subsection*{5. What Simulation IS --- and Is NOT}
+\textbf{Simulation IS}
+\begin{itemize}[leftmargin=*]
+\item Computational experimentation  
+\item Tool for ``what if'' questions  
+\item Model-driven decision support  
+\item Reproducible \& transparent  
+\item Under-the-hood engineering
+\end{itemize}
+
+\textbf{Simulation is NOT}
+\begin{itemize}[leftmargin=*]
+\item Animation (pretty pictures $\neq$ science)  
+\item Optimization (evaluates, doesn't auto-find optimum)  
+\item Prediction/prophecy  
+\item Pure probability proofs  
+\item Substitute for thinking
+\end{itemize}
+
+\textbf{Workflow}
+Ask a Question $\rightarrow$ Build a Model $\rightarrow$ Run Experiments $\rightarrow$ Make a Decision
+
+\subsection*{6. Why We Simulate (When Math Fails)}
+\begin{itemize}[leftmargin=*]
+\item Feedback loops create non-obvious behavior  
+\item Interacting agents produce \textbf{emergent patterns} (e.g., mild preferences $\rightarrow$ segregation)  
+\item Stochastic processes make averages misleading  
+\item Real experiments are too expensive/risky/impossible  
+\item Analytical math breaks on real complexity
+\end{itemize}
+
+\textbf{Emergent segregation example} (Schelling 1971):  
+Agents want $\geq$ threshold \% same-type neighbors $\rightarrow$ simple local rule creates global segregation. \textit{No one planned it. You cannot predict analytically --- you must simulate.}
+
+\subsection*{7. When to Simulate --- and When NOT}
+\textbf{Use Simulation When\ldots{}}
+\begin{itemize}[leftmargin=*]
+\item System too complex for analytical solution  
+\item Need to study internal behavior over time  
+\item Real experiments too expensive/risky  
+\item Need to compare designs before building
+\end{itemize}
+
+\textbf{Don't Simulate When\ldots{}}
+\begin{itemize}[leftmargin=*]
+\item Problem solvable analytically  
+\item Input data unavailable and cannot be estimated  
+\item Expectations unrealistic (``find the optimum'')  
+\item Simpler methods suffice
+\end{itemize}
+
+\subsection*{8. Advantages vs. Disadvantages}
+\textbf{Advantages}
+\begin{itemize}[leftmargin=*]
+\item Test without disrupting real system  
+\item Explore ``what if'' safely  
+\item Compress/expand time  
+\item Study extreme conditions  
+\item Models are reusable
+\end{itemize}
+
+\textbf{Disadvantages}
+\begin{itemize}[leftmargin=*]
+\item Model building requires skill \& time  
+\item Stochastic output needs statistical analysis  
+\item False confidence if unvalidated  
+\item Results are estimates, not exact  
+\item Garbage in, garbage out
+\end{itemize}
+
+\subsection*{9. Classifying Simulation Models}
+\begin{verbatim}
+| Dimension     | Static          | Dynamic                  |
+|---------------|-----------------|--------------------------|
+| **Deterministic** | Spreadsheet calc | Deterministic simulation |
+| **Stochastic**    | Monte Carlo     | **Discrete-Event (DES)** $\leftarrow$ **This course** |
+\end{verbatim}
+
+\textbf{This course focuses on dynamic, stochastic, discrete simulation = DES.}
+
+\subsection*{10. Randomness \& Reproducibility}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Random number} $\rightarrow$ raw uniform [0,1)  
+\item \textbf{Random variate} $\rightarrow$ transformed to target distribution (service time, interarrival, demand)  
+\item \textbf{Pseudorandom + Seed} $\rightarrow$ same seed = same sequence $\rightarrow$ reproducibility is a \textit{feature}, not a bug.
+\end{itemize}
+
+\subsection*{11. Monte Carlo Simulation (Static + Stochastic)}
+\begin{itemize}[leftmargin=*]
+\item Estimate $\pi$ by throwing darts at unit square  
+\item Newsvendor problem: find optimal Q by sampling demand many times  
+\item More trials $\rightarrow$ more precise estimate (no time, no entities, no events)
+\end{itemize}
+
+\subsection*{12. From Spreadsheet to DES}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Deterministic spreadsheet} (bank queue, fixed times) $\rightarrow$ exact but unrealistic  
+\item \textbf{Stochastic hand simulation} (single-server queue with random IAT/service) $\rightarrow$ every run gives different results  
+\item \textbf{Why still simulate when formulas exist?}  
+\end{itemize}
+  M/M/1 has exact formulas, but real systems have priorities, balking, time-varying rates, complex routing $\rightarrow$ formulas break. Simulation handles all of them effortlessly.
+
+\textbf{Rule of thumb}: If a formula exists, use it. When it doesn't --- simulate.
+
+\subsection*{13. Simulation Tools}
+\textbf{Spreadsheet} (quick estimates, teaching)  
+\textbf{Code} (Python + SimPy) $\leftarrow$ \textbf{Our tool this semester} (transparency \& control)  
+\textbf{Commercial} (Arena, AnyLogic, Simio) (drag-and-drop, industry standard)
+
+\subsection*{Bank Anchor Progress}
+\textbf{Spreadsheet} (deterministic bank queue) $\rightarrow$ \textbf{Hand Simulation} (stochastic single-server) $\rightarrow$ \textbf{DES Principles} $\rightarrow$ SimPy (next lectures) \ldots{}
+
+\textbf{Next Lecture (Lecture 02)}: Hand Simulation \& Discrete-Event Simulation Principles (clock, event list, state variables, statistics).
+
+You now understand \textbf{why simulation exists}, \textbf{when it is the right tool}, and \textbf{how it fits into the scientific toolkit}. The rest of the course turns this philosophy into practical, reproducible SimPy models.
+
+\section*{Lecture 02 Summary: General Principles of DES}
+\textbf{Basic definitions, concepts, and hand simulation}
+Kerem Demirtas --- Boğaziçi University, IE 306, Spring 2026
+
+\subsection*{1. Core DES Concepts (Review + New)}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Entities}: Objects that move through the system (e.g., customers, parts, calls).
+\item \textbf{Attributes}: Properties attached to each entity (e.g., arrival time, type, service need).
+\item \textbf{Events}: Instantaneous occurrences that change the system state (arrival, departure).
+\item \textbf{Event Notice}: ``Event X at time t''.
+\item \textbf{Future Event List (FEL)}: Sorted list of all scheduled event notices (by time).
+\item \textbf{Clock}: Current simulated time --- advances \textbf{only} to the next event time (next-event time advance).
+\item \textbf{State Variables}: Describe the system at any moment (e.g., server busy/idle, queue length). Change \textbf{only} at events.
+\item \textbf{Activity}: Known-duration interval whose end is scheduled as an event in the FEL (e.g., service time = 4 min $\rightarrow$ schedule departure at t+4).
+\item \textbf{Delay}: Unknown-duration wait that ends when a condition becomes true (e.g., wait in queue until server free) --- \textbf{not} put in FEL.
+\end{itemize}
+
+\subsection*{2. How Time Advances in DES (Next-Event Time Advance)}
+\begin{enumerate}[leftmargin=*]
+\item Remove the \textbf{imminent} (earliest) event from the FEL.  
+\item Advance clock to that event's time.  
+\item Execute the event $\rightarrow$ update state variables, statistics, lists.  
+\item Schedule any new events and insert them into the FEL (sorted by time).  
+\item Update statistical accumulators.  
+\end{enumerate}
+
+Repeat until FEL is empty or a stopping condition is met.  
+\textbf{Simulated time jumps} from event to event --- far more efficient than ticking every unit of time.
+
+\subsection*{3. Single-Server Queue --- Hand Simulation (Main Example)}
+\textbf{System}
+\begin{itemize}[leftmargin=*]
+\item One machine (server), FIFO queue, infinite buffer.  
+\item Initially empty and idle at t = 0.  
+\item Stop at t = 20 minutes.  
+\item Given interarrival and service times for the first 11 parts.
+\end{itemize}
+
+\textbf{State variables tracked}:
+\begin{itemize}[leftmargin=*]
+\item Clock  
+\item Server status B(t) (0 = idle, 1 = busy)  
+\item Queue length Lq(t)  
+\item List of arrival times of customers currently in queue  
+\end{itemize}
+
+\textbf{Event logic}:
+\begin{itemize}[leftmargin=*]
+\item \textbf{Arrival}:  
+\item Update time-persistent stats (area under Lq(t) and B(t) curves).  
+\item Mark arriving part with current time.  
+\item If server idle $\rightarrow$ start service, schedule departure, waiting time = 0.  
+\item Else $\rightarrow$ join queue, increase Lq.  
+\item Schedule next arrival.  
+\item \textbf{Departure}:  
+\item Increment production counter.  
+\item Tally time-in-system for the departing part.  
+\item Update time-persistent stats.  
+\item If queue non-empty $\rightarrow$ remove first part, tally its queue wait, start service (schedule new departure).  
+\item Else $\rightarrow$ server becomes idle (no new departure scheduled).  
+\item \textbf{End (stopping event)}: Update final time-persistent stats and compute all output measures.
+\end{itemize}
+
+\textbf{Performance measures calculated from hand simulation (t = 20)}:
+\begin{itemize}[leftmargin=*]
+\item Avg. waiting time in queue = 2.53 min/part  
+\item Time-average number in queue = 0.79  
+\item Server utilization = 0.92  
+\end{itemize}
+
+\subsection*{4. Randomness in Simulation}
+One run = \textbf{one replication} (sample of size 1).  
+Run \textbf{multiple independent replications} (different random seeds) $\rightarrow$ compute sample mean, std. dev., and confidence intervals:
+
+\[
+\bar{X} \pm t_{n-1,1-\alpha/2} \frac{s}{\sqrt{n}}
+\]
+
+Example table (5 replications) shows substantial variability across runs; CIs are therefore essential.
+
+\subsection*{5. Two-Server Example (Able \& Baker)}
+Illustrates routing rule:  
+If Able free $\rightarrow$ Able, else if Baker free $\rightarrow$ Baker, else queue (FIFO).  
+Hand trace provided up to t = 8; simple utilization and average-wait calculations shown.
+
+\subsection*{6. DES Engine \& Two World Views}
+\textbf{DES Engine} (flowchart): Initialize $\rightarrow$ while FEL not empty $\rightarrow$ get next event $\rightarrow$ advance clock $\rightarrow$ process event $\rightarrow$ schedule new events $\rightarrow$ repeat $\rightarrow$ report statistics.
+
+\textbf{Two World Views}:
+\begin{itemize}[leftmargin=*]
+\item \textbf{Event Scheduling} (what we did by hand): Focus on ``what happens next?'' Maintain sorted FEL. Good for procedural coding.
+\item \textbf{Process Interaction} (used by SimPy): Focus on ``what does one entity experience?'' (arrive $\rightarrow$ request server $\rightarrow$ wait $\rightarrow$ get served $\rightarrow$ leave). Reads like a story; engine hides the FEL details.
+\end{itemize}
+
+\textbf{Both produce identical results}; underneath, everything is still event scheduling.
+
+\subsection*{7. From Hand Simulation to Code}
+Everything done on paper maps directly to code:
+\begin{itemize}[leftmargin=*]
+\item FEL $\rightarrow$ priority queue (heapq)
+\item Clock $\rightarrow$ \texttt{env.now} in SimPy
+\item Event processing $\rightarrow$ Python functions/generators
+\item State $\rightarrow$ variables/objects/lists
+\item Statistics $\rightarrow$ accumulators
+\end{itemize}
+
+\textbf{Next lecture}: First SimPy process (customer generator with \texttt{yield env.timeout} and \texttt{server.request()}).
+
+\textbf{References}: Lecture notes + Banks et al., \textit{Discrete-Event System Simulation}, 5th ed.
+
+\textbf{Key Takeaway}: Discrete-event simulation runs by jumping from event to event, maintaining a future event list, updating state only at events, and collecting both time-persistent and customer-based statistics. Hand simulation is the foundation for understanding any simulation language (including SimPy).
+
+\section*{Lecture 03 Summary: SimPy Basics}
+\textbf{Your First DES Process --- From Hand Simulation to Python Code}
+Kerem Demirtas --- Boğaziçi University, IE 306, Spring 2026
+
+\subsection*{1. The Bank Anchor Trilogy (Progression)}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Week 1}: Spreadsheet (tables \& formulas)  
+\item \textbf{Week 2}: Hand simulation (FEL, clock, Gantt chart)  
+\item \textbf{Week 3 (Today)}: SimPy code (\texttt{env.process}, \texttt{yield req}, Python automation)  
+\end{itemize}
+
+\textbf{Same system, same 4 customers, same logic} --- now fully automated in Python.
+
+\subsection*{2. What Is SimPy?}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Process-based Discrete-Event Simulation} library for Python (free \& open-source).  
+\item Docs: simpy.readthedocs.io  
+\item Uses \textbf{process interaction} worldview (from Lecture 2).  
+\item Built-in FEL \& clock management.  
+\item Uses Python \textbf{generators} (\texttt{yield}) to model entity lifecycles.  
+\end{itemize}
+
+\textbf{Basic setup}:
+\begin{lstlisting}[language=Python]
+import simpy
+env = simpy.Environment()
+env.run(until=100)   # or until FEL is empty
+\end{lstlisting}
+
+\subsection*{3. The Three Core Objects in SimPy}
+\begin{verbatim}
+| Object     | Purpose                              | Key Features                     |
+|------------|--------------------------------------|----------------------------------|
+| **env**    | Simulation world                     | Holds clock (`env.now`), FEL, runs simulation |
+| **Process**| Entity's lifecycle (generator)       | Uses `yield` for delays/activities |
+| **Resource**| Contested object (teller, machine)  | Limited capacity, `request()` / `release()` |
+\end{verbatim}
+
+\subsection*{4. Environment (\texttt{env})}
+\begin{itemize}[leftmargin=*]
+\item \texttt{env.now}: current simulation time (read-only)  
+\item \texttt{env.process(...)}: register a process  
+\item \texttt{env.run(until=T)}: run until time \texttt{T} (or until FEL empty)  
+\item \texttt{env.timeout(t)}: delay for \texttt{t} time units  
+\end{itemize}
+
+SimPy automatically handles the \textbf{next-event time advance} you did manually in Lecture 2.
+
+\subsection*{5. Python Generators Refresher}
+Regular functions run to completion.  
+\textbf{Generators} (\texttt{yield}) can \textbf{pause and resume} --- exactly what we need for:
+\begin{itemize}[leftmargin=*]
+\item Waiting in queue  
+\item Service activity  
+\item Arrivals, etc.
+\end{itemize}
+
+\subsection*{6. Processes \& Resources}
+\textbf{Process} = one entity's story:
+\begin{lstlisting}[language=Python]
+def customer(env, name, teller, arrival, service):
+    yield env.timeout(arrival)          # arrive
+    with teller.request() as req:       # request server
+        yield req                       # wait until granted
+        yield env.timeout(service)      # service (activity)
+\end{lstlisting}
+
+\textbf{Resource} = server/teller:
+\begin{lstlisting}[language=Python]
+teller = simpy.Resource(env, capacity=1)
+\end{lstlisting}
+\texttt{with ... as req:} automatically releases the resource when the block ends.
+
+\subsection*{7. Building the Bank Queue (Same 4 Customers)}
+\textbf{Data} (deterministic, from Lectures 1--2):
+
+\begin{verbatim}
+| Customer | Arrival | Service |
+|----------|---------|---------|
+| C1       | 0       | 4       |
+| C2       | 2       | 3       |
+| C3       | 8       | 3       |
+| C4       | 10      | 2       |
+\end{verbatim}
+
+\textbf{Stage 1}: One customer $\rightarrow$ basic process  
+\textbf{Stage 2}: Four customers $\rightarrow$ multiple processes run concurrently  
+\textbf{Stage 3}: Add statistics (wait time tracking)
+
+\textbf{Expected results} (matches hand simulation):
+\begin{itemize}[leftmargin=*]
+\item C2 waits 2 min (2 $\rightarrow$ 4)  
+\item C4 waits 1 min (10 $\rightarrow$ 11)  
+\item Average wait = \textbf{0.75} minutes
+\end{itemize}
+
+\subsection*{8. Full Working Code (Bank Anchor v3)}
+\begin{lstlisting}[language=Python]
+import simpy
+wait_times = []
+
+def customer(env, name, teller, arrival, service):
+    yield env.timeout(arrival)
+    arrive_time = env.now
+    with teller.request() as req:
+        yield req
+        wait = env.now - arrive_time
+        wait_times.append(wait)
+        print(f'{name}: arrive={arrive_time:.0f}, start={env.now:.0f}, wait={wait:.0f}')
+    yield env.timeout(service)
+
+env = simpy.Environment()
+teller = simpy.Resource(env, capacity=1)
+
+env.process(customer(env, 'C1', teller, 0, 4))
+env.process(customer(env, 'C2', teller, 2, 3))
+env.process(customer(env, 'C3', teller, 8, 3))
+env.process(customer(env, 'C4', teller, 10, 2))
+
+env.run()
+print(f'\nAvg wait: {sum(wait_times)/len(wait_times):.2f}')
+\end{lstlisting}
+
+\subsection*{9. Adding Randomness \& Reproducibility}
+\begin{itemize}[leftmargin=*]
+\item Replace fixed times with distributions (\texttt{random.uniform}, \texttt{random.expovariate}, etc.).  
+\item \textbf{Seeds} (\texttt{random.seed(42)}) $\rightarrow$ identical results every run (essential for debugging \& Common Random Numbers).  
+\item Deterministic run $\rightarrow$ easy validation  
+\item Stochastic run $\rightarrow$ realistic behavior
+\end{itemize}
+
+\subsection*{10. Debugging Tips \& Common Pitfalls}
+\begin{itemize}[leftmargin=*]
+\item Always \texttt{yield} before \texttt{env.timeout()} or \texttt{req}  
+\item Call \texttt{env.process(...)} for every entity  
+\item Use \texttt{with resource.request() as req:} for auto-release  
+\item Add \texttt{print(f'DEBUG: \{env.now\} ...')} liberally  
+\item Compare output with hand simulation
+\end{itemize}
+
+\subsection*{11. Practice Exercises (Not Graded)}
+\begin{enumerate}[leftmargin=*]
+\item Reproduce the 4-customer deterministic model (avg wait = 0.75)  
+\item Add 5th customer (C5 at t=12, service=3)  
+\item Make it stochastic + 10 replications  
+\item Challenge: Implement Able \& Baker (two servers + routing rule)
+\end{enumerate}
+
+\subsection*{12. What You Learned Today}
+\begin{itemize}[leftmargin=*]
+\item SimPy core objects (\texttt{env}, Process, Resource)  
+\item How to translate hand simulation directly into Python code  
+\item Process interaction worldview in action  
+\item Automatic FEL/clock/state management  
+\item Basic statistics collection  
+\item Randomness \& reproducibility with seeds  
+\end{itemize}
+
+\textbf{Next Week (Lecture 4)}: Multi-resource queues, queue statistics, Poisson arrivals, exponential/normal service times.
+
+\textbf{You now have the foundation for every DES model this semester.}
+The Bank Anchor has moved from spreadsheet $\rightarrow$ hand sim $\rightarrow$ \textbf{working SimPy code}. Ready for multi-teller and full stochastic models!,
+
+\section*{Lecture 04 Summary: Resources \& Queues}
+\textbf{Multi-Server Systems, OOP, and Queue Statistics}
+Kerem Demirtas --- Boğaziçi University, IE 306, Spring 2026
+
+\subsection*{1. Where We Are}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Last week (Lecture 3)}: Completed Bank Anchor Trilogy (single teller, deterministic $\rightarrow$ stochastic). Mastered \texttt{env}, \texttt{Process}, \texttt{Resource}, generators, seeds.
+\item \textbf{Today}: 
+\item Close the Able \& Baker challenge
+\item Symmetric multi-server queues (\texttt{capacity > 1})
+\item OOP: \texttt{Customer} class + subclasses
+\item Poisson arrivals via generator
+\item \texttt{numpy.random.default\_rng} upgrade
+\item Queue-length statistics (time-average, max)
+\item Full stochastic multi-teller bank model
+\end{itemize}
+
+\subsection*{2. SimPy Resource Properties (Key for Routing \& Stats)}
+\begin{verbatim}
+| Property              | Type          | Meaning                                      |
+|-----------------------|---------------|----------------------------------------------|
+| `resource.capacity`   | `int`         | Max concurrent users (set at creation)       |
+| `resource.count`      | `int`         | Currently in service (`= len(resource.users)`) |
+| `resource.users`      | `list[Request]` | Requests being served                     |
+| `resource.queue`      | `list[Request]` | Waiting requests (FIFO)                    |
+\end{verbatim}
+
+\textbf{Useful expressions}:
+\begin{itemize}[leftmargin=*]
+\item \texttt{resource.count == resource.capacity} $\rightarrow$ all servers busy
+\item \texttt{len(resource.queue)} $\rightarrow$ queue length
+\item \texttt{len(resource.queue) + resource.count} $\rightarrow$ total in system \(L\)
+\end{itemize}
+
+\subsection*{3. Able \& Baker (Challenge Solution)}
+Two separate resources + routing logic in \texttt{customer()}:
+\begin{lstlisting}[language=Python]
+if able.count < able.capacity:
+    server = able
+elif baker.count < baker.capacity:
+    server = baker
+else:
+    server = able  # join Able's queue
+with server.request() as req:
+    yield req
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item Able utilization $\approx$ 91\%, Baker $\approx$ 65\% (asymmetry because Able is preferred).
+\end{itemize}
+
+\subsection*{4. Multi-Server Pool (\texttt{capacity = N})}
+\begin{lstlisting}[language=Python]
+tellers = simpy.Resource(env, capacity=3)   # T1, T2, T3 interchangeable
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item Customer code \textbf{unchanged} --- SimPy automatically assigns any free server.
+\item Compare: \texttt{capacity=1} (avg wait 0.75) vs \texttt{capacity=2} (avg wait 0.00) for the 4-customer example.
+\end{itemize}
+
+\subsection*{5. Traffic Intensity, Stability \& Little's Law}
+\textbf{Traffic intensity}:
+\begin{itemize}[leftmargin=*]
+\item Single server: \(\rho = \lambda / \mu\)
+\item \(N\) servers: \(\rho = \lambda / (N\mu)\)
+\end{itemize}
+
+\textbf{Stability}: \(\rho < 1\) required, otherwise queue $\rightarrow$ $\infty$.
+
+\textbf{Little's Law} (any stable queue): \(L = \lambda W\)  
+(where \(L\) = avg \# in system, \(W\) = avg time in system).
+
+\textbf{M/M/1 waiting time} (derived step-by-step):
+\[
+W_q = \frac{\rho}{\mu(1-\rho)}
+\]
+
+\textbf{Bank example} (\(\lambda = 1/3\), \(\mu = 1/4\)):
+\begin{itemize}[leftmargin=*]
+\item \(N=1\): \(\rho \approx 1.33\) $\rightarrow$ unstable
+\item \(N=2\): \(\rho \approx 0.67\) $\rightarrow$ stable, avg wait $\approx$ 4.8 min
+\item \(N=3\): \(\rho \approx 0.44\) $\rightarrow$ stable, avg wait $\approx$ 0.4 min
+\end{itemize}
+
+\subsection*{6. Separate Resources vs. Pooled Capacity}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Interchangeable servers} $\rightarrow$ \texttt{Resource(capacity=N)}
+\item \textbf{Different speeds / preferences} $\rightarrow$ separate resources + routing
+\end{itemize}
+
+\subsection*{7. OOP Refactoring --- \texttt{Customer} Class}
+Motivation: procedural \texttt{customer()} becomes unwieldy with many customer types.
+
+\begin{lstlisting}[language=Python]
+class Customer:
+    def __init__(self, env, name, teller, arrival, service):
+        self.env = env
+        self.name = name
+        ...
+        self.process = env.process(self.run())   # auto-starts
+
+    def run(self):
+        yield self.env.timeout(self.arrival)
+        arrive_time = self.env.now
+        with self.teller.request() as req:
+            yield req
+            self.wait = self.env.now - arrive_time
+            yield self.env.timeout(self.service)
+\end{lstlisting}
+
+\textbf{Subclass example} --- \texttt{ImpatientCustomer} (balks if queue too long):
+\begin{lstlisting}[language=Python]
+class ImpatientCustomer(Customer):
+    def run(self):
+        ... 
+        if len(self.teller.queue) >= self.max_queue_length:
+            print(f'{self.name} balks')
+            return
+        ...
+\end{lstlisting}
+
+\subsection*{8. DES $\leftrightarrow$ Agent-Based Simulation (ABS) Moment}
+\begin{itemize}[leftmargin=*]
+\item \textbf{OOP DES} (today): entities read system state and make fixed decisions.
+\item \textbf{ABS}: agents observe environment broadly, decide/act repeatedly, may adapt.
+\item ImpatientCustomer is at the boundary.
+\end{itemize}
+
+\subsection*{9. Poisson Arrivals via Generator}
+\begin{lstlisting}[language=Python]
+def arrival_source(env, tellers, rng, ...):
+    i = 0
+    while True:
+        yield env.timeout(rng.exponential(MEAN_IAT))
+        i += 1
+        svc = rng.exponential(MEAN_SVC)
+        env.process(Customer(...))   # spawn new customer
+env.run(until=SIM_TIME)   # MUST use until= when source is infinite
+\end{lstlisting}
+
+\subsection*{10. Randomness Upgrade: \texttt{numpy.random}}
+\begin{lstlisting}[language=Python]
+import numpy as np
+rng = np.random.default_rng(seed=42)
+iat = rng.exponential(MEAN_IAT)
+svc = rng.exponential(MEAN_SVC)
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+\item Cleaner, per-object seeds, better arrays, no global state issues.
+\end{itemize}
+
+\subsection*{11. Queue Statistics (Time-Based)}
+\textbf{Monitoring pattern} (record at every change):
+\begin{lstlisting}[language=Python]
+def log_q(env, tellers, queue_log):
+    queue_log.append((env.now, len(tellers.queue)))
+
+# Call at arrival, service start, departure
+\end{lstlisting}
+
+\textbf{Time-average queue length}:
+\[
+\bar{L}_q = \frac{1}{T} \sum q_i \cdot (t_{i+1} - t_i)
+\]
+
+\textbf{Utilization}:
+\begin{lstlisting}[language=Python]
+utilization = sum(busy_time_log) / (N_TELLERS * SIM_TIME)
+\end{lstlisting}
+
+\subsection*{12. Full Stochastic Model (One 8-Hour Day)}
+\begin{itemize}[leftmargin=*]
+\item Parameters: \texttt{MEAN\_IAT}=3 min, \texttt{MEAN\_SVC}=4 min, \texttt{N\_TELLERS}=2, \texttt{SIM\_TIME}=480 min $\rightarrow$ \(\rho \approx 67\%\)
+\item One run (seed 42): avg wait $\approx$ 3.05 min, \(\bar{L}_q \approx 0.85\), max queue=9, utilization 66.4\%
+\item With N=3: avg wait drops to 0.50 min (6$\times$ improvement).
+\end{itemize}
+
+\textbf{Always run replications} (one run is misleading).
+
+\textbf{Validation checks} before trusting output:
+\begin{itemize}[leftmargin=*]
+\item Utilization matches \(\rho\)
+\item Customer count $\approx$ expected arrivals
+\item Results in right order of magnitude
+\end{itemize}
+
+\subsection*{What You Learned Today}
+\begin{itemize}[leftmargin=*]
+\item Multi-server modeling (\texttt{capacity=N} vs separate resources)
+\item OOP for heterogeneous entities (\texttt{Customer} + subclasses)
+\item Arrival generator + Poisson/exponential
+\item \texttt{numpy.random.default\_rng}
+\item Time-based statistics ($\bar{L}_q$, utilization) + monitoring pattern
+\item Importance of replications and validation
+\end{itemize}
+
+\textbf{Bank Anchor Progress}: Spreadsheet $\rightarrow$ Hand Sim $\rightarrow$ SimPy $\rightarrow$ \textbf{Multi-Server} $\rightarrow$ Full DES (next week).
+
+\textbf{Next Lecture (Week 5)}: Entity behavior patterns (reneging, priority, preemption, mixed populations). Full DES project milestone.
+
+You now have a \textbf{complete, instrumented, stochastic multi-server DES model} ready for real analysis!
+
+\section*{Lecture 05 Summary: SimPy Deep Dive \& Advanced Patterns}
+\textbf{Internals, Conditions, Priority, and the Full DES Model}
+Kerem Demirtas --- Boğaziçi University, IE 306, Spring 2026
+
+\subsection*{1. What We Built Today}
+From Lecture 4 (single-type arrivals + basic resources) $\rightarrow$ \textbf{full production-grade Emergency Department (ED) model}:
+\begin{itemize}[leftmargin=*]
+\item 3 patient types (Critical / Urgent / Non-urgent) with different priorities, service times, and patience
+\item 4 resources (triage, rooms, doctors, cleaners)
+\item \textbf{OR} condition $\rightarrow$ Non-urgent patients renege from triage
+\item \textbf{AND} condition $\rightarrow$ Treatment requires both room + doctor
+\item Delayed-release pattern (cleaner holds room after patient leaves)
+\item Priority \& preemptive queuing
+\item Clean statistics via \texttt{simpy-stats} library
+\end{itemize}
+
+\textbf{Learning goal}: Understand \textit{why} the code works (FEL, callbacks, conditions), not just copy-paste.
+
+\subsection*{2. Poisson Splitting (Multi-Type Arrivals)}
+\textbf{Theorem}: Poisson($\lambda$) arrivals split independently into Poisson($p_i\lambda$) sub-streams.
+
+\textbf{ED example} (mean IAT = 5 min):
+\begin{verbatim}
+| Type        | p$_i$   | IAT$_i$ (min) |
+|-------------|------|------------|
+| Critical    | 0.15 | $\approx$33.3      |
+| Urgent      | 0.35 | $\approx$14.3      |
+| Non-urgent  | 0.50 | 10.0       |
+\end{verbatim}
+
+\textbf{Two equivalent implementations}:
+\begin{itemize}[leftmargin=*]
+\item \textbf{Option A}: One combined source + random type assignment
+\item \textbf{Option B}: Separate source per type (cleaner for per-type logic)
+\end{itemize}
+
+\subsection*{3. SimPy Internals (How It Really Works)}
+\begin{itemize}[leftmargin=*]
+\item \textbf{FEL}: \texttt{heapq} of \texttt{(time, event\_id, event)} triples (time-ties broken by insertion order)
+\item \textbf{env.step()}: Pop smallest event $\rightarrow$ advance \texttt{env.now} $\rightarrow$ call all callbacks $\rightarrow$ wake processes
+\item \textbf{env.run(until=T)}: Loop of \texttt{step()} until time T
+\item \textbf{Event hierarchy}: \texttt{Timeout} $\rightarrow$ \texttt{Process} $\rightarrow$ \texttt{Condition} (\texttt{AnyOf} = OR, \texttt{AllOf} = AND)
+\item \textbf{Callbacks}: Every event has \texttt{.callbacks} list; \texttt{yield} appends resume function; \texttt{env.step()} executes them
+\end{itemize}
+
+\textbf{Key debugging tool}:
+\begin{lstlisting}[language=Python]
+print(env.peek())   # next event time (or inf if empty) --- read-only
+\end{lstlisting}
+
+\subsection*{4. OR Condition (\texttt{AnyOf}) --- Reneging}
+\begin{lstlisting}[language=Python]
+req = server.request()
+result = yield req | env.timeout(patience)
+if req in result:          # served
+    ... service ...
+else:                      # reneged
+    req.cancel()           # MANDATORY!
+    reneges += 1
+\end{lstlisting}
+
+\textbf{Rule}: Always call \texttt{req.cancel()} on renege, otherwise a ghost request stays in the queue forever.
+
+\subsection*{5. AND Condition (\texttt{AllOf}) --- Synchronization}
+\begin{lstlisting}[language=Python]
+room_req = rooms.request()
+doc_req  = doctors.request()
+yield room_req & doc_req     # wait for BOTH
+# now hold both resources
+yield env.timeout(treatment)
+doctors.release(doc_req)
+env.process(clean_room(..., room_req))  # delayed release
+\end{lstlisting}
+
+\textbf{Deadlock prevention}: Submit \textbf{all} requests first, then yield the \texttt{\&} condition.
+
+\subsection*{6. Priority \& Preemption}
+\begin{verbatim}
+| Feature              | Class                  | Behavior                              |
+|----------------------|------------------------|---------------------------------------|
+| Non-preemptive       | `PriorityResource`     | Queue sorted by priority; no interrupt |
+| Preemptive           | `PreemptiveResource`   | Higher priority interrupts current job |
+\end{verbatim}
+
+\textbf{Preemption code pattern} (must catch \texttt{simpy.Interrupt}):
+\begin{lstlisting}[language=Python]
+remaining = service_time
+while remaining > 0:
+    req = machine.request(priority=p, preempt=True)
+    try:
+        yield req
+        yield env.timeout(remaining)
+        remaining = 0
+    except simpy.Interrupt:
+        remaining -= (env.now - start)
+    finally:
+        machine.release(req)
+\end{lstlisting}
+
+\subsection*{7. Full ED Model (Capstone)}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Patient class hierarchy} (\texttt{CriticalPatient}, \texttt{UrgentPatient}, \texttt{NonUrgentPatient})
+\item Triage = \texttt{PriorityResource}
+\item Treatment = \texttt{AllOf(rooms \& doctors)}
+\item Cleaning = delayed-release process
+\item Reneging only for non-urgent patients
+\end{itemize}
+
+\textbf{Example output} (one run, 480 min):
+\begin{itemize}[leftmargin=*]
+\item Reneges: 23 (all non-urgent)
+\item Mean room wait: 8.4 min
+\item Triage queue (time-weighted): 0.3
+\end{itemize}
+
+\subsection*{8. simpy-stats Library (Clean Instrumentation)}
+\begin{lstlisting}[language=Python]
+from simpy_stats import Stats, MonitoredResource
+
+stats = Stats(env)
+server = MonitoredResource(env, capacity=2, stats=stats, prefix="server")
+
+# Auto-tracks: server.queue_len, server.in_service (time-weighted)
+wait = stats.tally("wait_time")
+wait.observe(value)
+n_renege = stats.counter("reneges")
+n_renege.inc()
+\end{lstlisting}
+
+\textbf{ReplicationRunner} for automatic CI-based stopping.
+
+\subsection*{9. DES Model Architecture (Layers)}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Arrival Layer}: Poisson splitting
+\item \textbf{Entity Layer}: Heterogeneous OOP classes, OR/AND
+\item \textbf{Resource Layer}: Priority, Preemptive, delayed-release
+\item \textbf{Statistics Layer}: \texttt{simpy-stats}
+\item \textbf{Experiment Layer}: Replications + confidence intervals
+\end{itemize}
+
+\subsection*{10. Pattern Recap}
+\begin{verbatim}
+| Pattern          | SimPy Mechanism                  | When to Use                     |
+|------------------|----------------------------------|---------------------------------|
+| Balking          | `if len(q) > K: return`         | Refuse to join                  |
+| Reneging         | `yield req \| timeout(p)` + `cancel()` | Join then leave                 |
+| AND sync         | `yield reqA & reqB`              | Need multiple resources         |
+| Non-preemptive priority | `PriorityResource`          | Queue ordering                  |
+| Preemption       | `PreemptiveResource`             | Interrupt current service       |
+| Delayed release  | Spawn cleaner process            | Resource held after entity leaves |
+| Breakdown        | `process.interrupt()`            | External event                  |
+\end{verbatim}
+
+\textbf{You now have the complete toolkit} for any realistic DES model.
+
+\textbf{Next (Lecture 6)}: Random Number Generation \& Variance Reduction (RNG deep dive).
+
+\textbf{Bank Anchor Progress}: Spreadsheet $\rightarrow$ Hand Sim $\rightarrow$ SimPy $\rightarrow$ Multi-Server $\rightarrow$ \textbf{Full DES} (this lecture) $\rightarrow$ RNG $\rightarrow$ Networks.
+
+You have built a \textbf{production-grade stochastic multi-resource model with priorities, reneging, synchronization, and clean statistics}. Ready for real analysis!
+
+\section*{Lecture 06 Summary: Randomness \& Input Analysis}
+\textbf{From the Engine to the Data}
+Kerem Demirtas --- Boğaziçi University, IE 306, Spring 2026
+
+\subsection*{1. Module 3 --- The Full Pipeline}
+\textbf{Part A} --- The Engine (how random numbers are generated)  
+\textbf{Part B} --- The Data Structure (how we work with real data in Pandas)  
+\textbf{Part C} --- Input Analysis (how we choose the right distribution)
+
+\textbf{What you already knew} $\rightarrow$ \texttt{rng.exponential(4.0)}, multiple seeds, inverse transform.  
+\textbf{What you didn't know} $\rightarrow$ How the PRNG actually works, why streams must stay independent, and how to turn real service-time data into the correct distribution for your SimPy model.
+
+\subsection*{2. Part A --- The PRNG Engine}
+
+\paragraph*{Linear Congruential Generator (LCG) --- The Simplest Engine}
+\[
+x_{n+1} = (a \cdot x_n + c) \mod m, \quad u_n = \frac{x_n}{m} \in [0,1)
+\]
+\begin{itemize}[leftmargin=*]
+\item Seed \(x_0\) sets the starting point.
+\item Same seed $\rightarrow$ \textbf{exact same sequence} every time (reproducibility).
+\end{itemize}
+
+\textbf{Period}: Maximum \(m\) (with careful \(a,c,m\)).  
+numpy's \textbf{PCG64} has period \(2^{128} \approx 3.4 \times 10^{38}\) --- more than enough for any simulation.
+
+\paragraph*{What ``Random'' Means Here --- Tests}
+\begin{verbatim}
+| Test                  | What it checks                              | Good result (PCG64) |
+|-----------------------|---------------------------------------------|---------------------|
+| Histogram             | Uniform fill of [0,1]                       | $\checkmark$                   |
+| Scatter plot \((u_n, u_{n+1})\) | No correlation between consecutive draws | $\checkmark$ (no visible lines) |
+| Autocorrelation       | \(\hat{\rho}_k \approx 0\) for \(k \ge 1\) | All lags inside $\pm$1.96/$\sqrt{}$n band |
+| Chi-square            | Bin counts match expected                   | Large \(p\) (>0.05) |
+| KS test               | Full CDF shape matches \(U(0,1)\)           | Large \(p\)         |
+| t-test                | Mean $\approx$ 0.5                                  | Large \(p\)         |
+\end{verbatim}
+
+\textbf{Takeaway}: Never implement your own LCG. Trust \texttt{np.random.default\_rng()}.
+
+\subsection*{3. Random Variate Generation --- Inverse Transform}
+\textbf{Continuous} (e.g. Exponential):
+\[
+F(x) = 1 - e^{-x/\mu} \quad \Rightarrow \quad X = -\mu \ln(U)
+\]
+\texttt{rng.exponential(mean)} does exactly this.
+
+\textbf{Discrete} (Lecture 1 style):
+Use cumulative probabilities $\rightarrow$ \texttt{rng.choice(values, p=probs)}.
+
+\textbf{When CDF has no closed inverse} (Normal, Gamma\ldots{}):  
+numpy uses ziggurat / acceptance-rejection internally.
+
+\subsection*{4. RNG Best Practices in SimPy Models (Critical!)}
+
+\textbf{The Three Rules}
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Always} use \texttt{default\_rng(seed)} --- never legacy \texttt{np.random.*} or \texttt{random.seed()}.
+\item \textbf{One RNG per source} (interarrivals, service times, routing, logging\ldots{}).
+\item \textbf{Document your seeds} (commit \texttt{BASE\_SEED} with the code).
+\end{enumerate}
+
+\textbf{Contamination problem}
+One extra \texttt{rng.random()} (e.g. for logging) shifts \textbf{all} downstream variates $\rightarrow$ completely different experiment.  
+\textbf{Fix}: Give every random source its own \texttt{rng} object.
+
+\textbf{Seed management for replications \& debugging}
+\begin{itemize}[leftmargin=*]
+\item Development: fixed seed + \texttt{VERBOSE=True}.
+\item Production: \texttt{BASE\_SEED} + \texttt{SeedSequence} for independent streams.
+\item CRN (Common Random Numbers) preview: same seeds across scenarios for fair comparison.
+\end{itemize}
+
+\subsection*{5. Part B --- Working with Real Data (Pandas)}
+
+\textbf{Why Pandas?}
+Real input data (CSV of 500 service times) is messy. Pandas gives:
+\begin{itemize}[leftmargin=*]
+\item Named columns, easy filtering/grouping/plotting
+\item Built-in \texttt{describe()}, \texttt{groupby}, \texttt{hist}, \texttt{boxplot}
+\end{itemize}
+
+\textbf{Core operations}
+\begin{lstlisting}[language=Python]
+df = pd.read_csv('service_times.csv')
+df.describe()                    # mean, std, quartiles, CV
+df.groupby('teller')['service_time'].describe()
+df['category'] = np.where(df['service_time'] > 5, 'long', 'short')
+\end{lstlisting}
+
+\subsection*{6. Part C --- Input Analysis (Choosing the Right Distribution)}
+
+\textbf{Key diagnostic: Coefficient of Variation (CV = std/mean)}
+\begin{itemize}[leftmargin=*]
+\item CV $\approx$ 1.0 $\rightarrow$ Exponential (memoryless)
+\item CV < 1.0 $\rightarrow$ Lognormal / Gamma / Erlang (mode > 0)
+\item CV > 1.0 $\rightarrow$ heavier tails (Weibull)
+\end{itemize}
+
+\textbf{Visual tools}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Histogram} + overlaid PDF (density=True)
+\item \textbf{Q-Q plot} (straight diagonal = excellent fit)
+\end{itemize}
+
+\textbf{Q-Q Plot Patterns}
+\begin{verbatim}
+| Pattern              | Meaning                              | Action                              |
+|----------------------|--------------------------------------|-------------------------------------|
+| Points on diagonal   | Good fit                             | Accept                              |
+| S-curve              | Lighter tails than assumed           | Try lighter-tailed family           |
+| Reverse-S            | Heavier tails                        | Try heavier-tailed family           |
+| Right end below      | Shorter right tail (over-dispersed)  | Switch from Exponential             |
+\end{verbatim}
+
+\textbf{Common families}
+\begin{itemize}[leftmargin=*]
+\item Exponential: interarrivals, pure random waiting
+\item Lognormal: service times (product of many small factors)
+\item Gamma/Erlang: multi-phase service
+\item Weibull: reliability / failures (hazard can increase/decrease)
+\end{itemize}
+
+\textbf{Fitting workflow}
+\begin{lstlisting}[language=Python]
+import scipy.stats as stats
+# Exponential
+loc, scale = stats.expon.fit(data, floc=0)   # force min=0
+
+# Lognormal
+shape, loc, scale = stats.lognorm.fit(data, floc=0)
+mu_ln = np.log(scale)
+sigma_ln = shape
+
+# Automated comparison
+from fitter import Fitter
+f = Fitter(data, distributions=['expon','lognorm','gamma','weibull_min'])
+f.fit()
+f.summary()          # SSE, AIC, BIC ranking
+\end{lstlisting}
+
+\textbf{Final model update}
+Bank data: right-skewed, CV $\approx$ 0.59, mode > 0 $\rightarrow$ \textbf{Lognormal} (not Exponential).  
+Result: average wait drops ~40\% compared to old Exponential model.
+
+\subsection*{What You Learned Today}
+\begin{itemize}[leftmargin=*]
+\item How PRNGs actually work (LCG $\rightarrow$ PCG64) and why stream independence matters
+\item Three unbreakable RNG rules for reproducible SimPy models
+\item Pandas crash course for real input data (groupby, filtering, plotting)
+\item Full input-analysis pipeline: histogram + Q-Q + fit + validate
+\item Why ``same mean'' is \textbf{not} enough --- shape (CV, skewness) drives queue behavior
+\end{itemize}
+
+\textbf{You now have the complete pipeline}: generate correct random inputs from real data $\rightarrow$ feed them into a statistically valid DES model.
+
+\textbf{Next Lecture (Lecture 7)}: Networks \& Advanced Resources (Containers, Stores, multi-stage systems).
+
+\textbf{Bank Anchor Progress}: Spreadsheet $\rightarrow$ Hand Sim $\rightarrow$ SimPy $\rightarrow$ Multi-Server $\rightarrow$ Full DES $\rightarrow$ \textbf{RNG \& Input Modeling} $\rightarrow$ Networks $\rightarrow$ Output Analysis.
+
+You are now equipped to build \textbf{statistically defensible} simulation models from real data!
+
+\section*{Lecture 07 Summary: Complex SimPy \& Networks of Queues}
+\textbf{Engineering Practices, Tandem Queues, and Feedback Loops}
+Kerem Demirtas --- Boğaziçi University, IE 306, Spring 2026
+
+\subsection*{1. Agenda \& Promise}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Section 2}: Engineering practices (avoid spaghetti, clean lifecycle, \texttt{yield from}, \texttt{timeout(0)}, instrumentation, OOP entities)
+\item \textbf{Section 3}: Bank network (series queues, split/merge, per-stage stats, bottleneck)
+\item \textbf{Section 4}: Pharmaceutical tablet model (feedback/rework, PriorityResource, k as load-control lever, Standard vs. Premium batches, policy comparison)
+\end{itemize}
+
+\textbf{Promise}: Every ``bad practice'' from Section 2 reappears as a real bug in Section 4.
+
+\subsection*{2. Section 2 --- Engineering Practices (Avoid Spaghetti)}
+
+\textbf{Spaghetti anti-pattern} (one giant \texttt{customer()} function):
+\begin{itemize}[leftmargin=*]
+\item All routing, service, stats, and rework logic interleaved
+\item Untestable, unmaintainable, impossible to add stages
+\end{itemize}
+
+\textbf{Clean entity lifecycle pattern}:
+\begin{lstlisting}[language=Python]
+def coat(env, machine, rng, priority=2):
+    with machine.request(priority=priority) as req:
+        yield req
+        yield env.timeout(rng.gamma(2, 2))
+    # auto-release
+
+def inspect(env, qc, rng):
+    with qc.request() as req:
+        yield req
+        yield env.timeout(rng.exponential(1.0))
+    return rng.random() > 0.20  # pass/fail
+
+def batch(env, resources, rng, stats, k):
+    arrival = env.now
+    rework_count = 0
+    while True:
+        pri = 1 if rework_count > 0 else 2
+        yield from coat(env, resources['coating'], rng, pri)
+        passed = yield from inspect(...)
+        if not passed:
+            rework_count += 1
+            if rework_count > k:
+                stats['scrapped'] += 1
+                return
+        else:
+            yield from package(...)
+            stats['flow_time'].append(env.now - arrival)
+            return
+\end{lstlisting}
+
+\textbf{Key mechanisms}:
+\begin{itemize}[leftmargin=*]
+\item \textbf{\texttt{yield from sub()}}: Sequential delegation (clean, testable, returns value)
+\item \textbf{\texttt{timeout(0)}}:
+\item Correct use: enforce deliberate ordering at simultaneous times (e.g., inventory replenishment before demand)
+\item Rule: Never use to ``fix'' a symptom --- investigate root cause
+\item Danger: Hides insertion-order bugs
+\item \textbf{Instrumentation}: Record \textbf{at the exact event} (\texttt{arrival} before first \texttt{yield}; wait at service start)
+\item \textbf{OOP entity pattern} (\texttt{run()} method): Use when entities carry state across stages or have type-specific parameters (Standard vs. Premium)
+\end{itemize}
+
+\textbf{Practices checklist} (use this before every model):
+\begin{itemize}[leftmargin=*]
+\item One function per actor
+\item Record stats at event time
+\item \texttt{yield from} for sequential steps
+\item \texttt{timeout(0)} only with explicit justification
+\item OOP only when functional hurts
+\end{itemize}
+
+\subsection*{3. Section 3 --- Bank Network (Series Queues)}
+
+\textbf{Series (tandem) queues}:
+\begin{itemize}[leftmargin=*]
+\item Customer finishes Stage 1 $\rightarrow$ immediately requests Stage 2
+\item \textbf{Cycle time (CT)}: time between consecutive outputs
+\item \textbf{Flow time (sojourn)}: total time a customer spends in system
+\end{itemize}
+
+\textbf{Bottleneck rule}:
+\[
+\text{TH}_{\text{sys}} = \min_i \frac{1}{E[S_i]} = \frac{1}{\max_i E[S_i]}
+\]
+Highest utilization + longest queue = bottleneck.
+
+\textbf{Cascade effect}:
+\begin{itemize}[leftmargin=*]
+\item Variability from upstream propagates downstream
+\item Downstream queues more variable than upstream (even at same $\rho$)
+\end{itemize}
+
+\textbf{SimPy chaining pattern} (clean series):
+\begin{lstlisting}[language=Python]
+with stage1.request() as req:
+    yield req
+    yield env.timeout(rng.exponential(2.0))
+with stage2.request() as req:   # Stage 1 auto-released
+    yield req
+    yield env.timeout(rng.exponential(4.0))
+\end{lstlisting}
+
+\textbf{Probabilistic split}:
+\begin{lstlisting}[language=Python]
+if rng.random() < 0.40:
+    # go to teller
+\end{lstlisting}
+
+\textbf{Merging flows}:
+\begin{itemize}[leftmargin=*]
+\item Two independent \texttt{arrivals\_*()} generators calling the same Resource
+\item SimPy merges contention automatically
+\end{itemize}
+
+\textbf{Per-stage statistics} reveal the true bottleneck (longer waits + higher queue at Teller, not ATM).
+
+\subsection*{4. Section 4 --- Pharmaceutical Tablet Model (Feedback + Priority)}
+
+\textbf{System}:
+\begin{itemize}[leftmargin=*]
+\item New batches arrive Poisson($\lambda$ = 1/5)
+\item Coating (Gamma) $\rightarrow$ QC (Exp) $\rightarrow$ Packaging (Exp)
+\item 20\% fail QC $\rightarrow$ re-coat (higher priority) or scrap after k failures
+\end{itemize}
+
+\textbf{Hidden load}:
+\begin{itemize}[leftmargin=*]
+\item Effective arrival rate at coating: \(\lambda_{\text{eff}} = \lambda / (1 - p_{\text{fail}})\)
+\item At \(p_{\text{fail}} = 0.20\): \(\lambda_{\text{eff}} \approx 0.25\) $\rightarrow$ utilization jumps to 1.00
+\end{itemize}
+
+\textbf{k as load-control lever}:
+\begin{itemize}[leftmargin=*]
+\item Caps re-entries $\rightarrow$ bounds hidden load
+\item Scrap probability $\approx$ \(p^{k+1}\)
+\item \(k=3\) captures ~98\% of unlimited-rework load
+\end{itemize}
+
+\textbf{PriorityResource}:
+\begin{lstlisting}[language=Python]
+coating = simpy.PriorityResource(env, capacity=1)
+req = coating.request(priority=PRIORITY_REWORK)  # lower number = higher priority
+\end{lstlisting}
+Non-preemptive by default.
+
+\textbf{OOP for heterogeneous batches}:
+\begin{lstlisting}[language=Python]
+class TabletBatch: ...          # COATING_MEAN=4.0, P_FAIL=0.15
+class PremiumBatch(TabletBatch): # overrides only parameters
+\end{lstlisting}
+\texttt{run()} inherited unchanged.
+
+\textbf{Policy comparison} (4 policies):
+\begin{itemize}[leftmargin=*]
+\item A: 1 machine, FCFS
+\item B: 1 machine, Priority (rework first)
+\item C: 2 machines, FCFS
+\item D: 2 machines, Priority
+\end{itemize}
+
+\textbf{Key insights}:
+\begin{itemize}[leftmargin=*]
+\item Priority redistributes waiting time (rework benefits, new batches pay the price)
+\item Starvation appears when \(p_{\text{fail}}\) high
+\item Pareto frontier: \(k=3\) nearly optimal (minimal extra scrap, big flow-time reduction)
+\item 2 machines eliminate priority benefit (queues rarely build)
+\end{itemize}
+
+\subsection*{What You Learned Today}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Engineering practices} that keep complex models maintainable and debuggable
+\item \textbf{Series queues}: cycle time vs. flow time, bottleneck detection, cascade effect
+\item \textbf{Network topologies}: split, merge, feedback (rework)
+\item \textbf{\texttt{PriorityResource}} + \texttt{k} as load-control lever
+\item \textbf{OOP entities} for heterogeneous types with shared lifecycle
+\item \textbf{timeout(0)}: when to use and when it hides bugs
+\end{itemize}
+
+\textbf{Every bad practice from Section 2 became a real bug in the tablet model} --- and you now know how to prevent them.
+
+\textbf{Bank Anchor Progress}: Spreadsheet $\rightarrow$ Hand Sim $\rightarrow$ SimPy $\rightarrow$ Multi-Server $\rightarrow$ Full DES $\rightarrow$ RNG/Input $\rightarrow$ \textbf{Networks \& Feedback} $\rightarrow$ Output Analysis (next).
+
+\textbf{Next Lecture (Lecture 8)}: Output Analysis (replications, confidence intervals, comparing systems).
+
+You now have \textbf{production-grade engineering practices} for any network of queues with feedback, priorities, and heterogeneous entities. Ready for real-world complexity!
+
+\section*{Lecture 08 Summary: Advanced SimPy Resources \& Modeling Patterns}
+\textbf{Store, Container, Events, Breakdowns, and the Fulfillment Center}
+Kerem Demirtas --- IE 306 -- Systems Simulation, Boğaziçi University, Spring 2026
+
+\subsection*{1. Agenda \& Big Picture}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Act 1}: Resources (Store, FilterStore, PriorityStore, Container)  
+\item \textbf{Act 2}: Disruptions (\texttt{env.event()}, \texttt{process.interrupt()}, breakdowns)  
+\item \textbf{Act 3}: Everything combined (fulfillment center + 3 experiments)  
+\item \textbf{Encore}: Realistic Time (factor \& strict RT)
+\end{itemize}
+
+\textbf{Core shift from L3--L7}:  
+\texttt{request()}/\texttt{release()} = \textbf{borrow a slot, use it, return it} (capacity constant).  
+\texttt{put()}/\texttt{get()} = \textbf{produce \& consume items} (contents change over time).
+
+\subsection*{2. Resource Taxonomy (Decision Tree)}
+Start here when designing any new component:
+
+\begin{verbatim}
+| Question                        | Yes $\rightarrow$ Resource Type          | Typical Use                     |
+|--------------------------------|------------------------------|---------------------------------|
+| Entity borrows & returns?      | Resource family (L3--7)      | Machines, servers, pumps       |
+| Bulk/fungible quantity?        | **Container**                | Fuel, supplies, raw material   |
+| Distinct objects?              | ---                            | ---                              |
+| $\rightarrow$ Need attribute selection?    | **FilterStore**              | Inventory, tool crib           |
+| $\rightarrow$ Items have priority?         | **PriorityStore**            | Orders, ER triage, express     |
+| $\rightarrow$ Simple FIFO?                 | **Store**                    | Message queue, conveyor buffer |
+\end{verbatim}
+
+\textbf{Comparison Table} (key differences):
+
+\begin{verbatim}
+| Feature          | Resource          | Store          | FilterStore       | PriorityStore     | Container          |
+|------------------|-------------------|----------------|-------------------|-------------------|--------------------|
+| Models           | Slots             | Object queue   | Object queue      | Object queue      | Bulk quantity      |
+| API              | request/release   | put/get        | put/get(filter)   | put/get           | put(n)/get(n)      |
+| Blocks put       | All busy          | Full           | Full              | Full              | Level > cap        |
+| Blocks get       | No                | Empty          | No match          | Empty             | Level < amount     |
+| Retrieval        | ---                 | FIFO           | Predicate         | Priority          | Fungible (no ID)   |
+| Default capacity | 1                 | $\infty$              | $\infty$                 | $\infty$                 | User-specified     |
+| Item identity    | No                | Yes            | Yes               | Yes               | No                 |
+\end{verbatim}
+
+\textbf{Critical note}: Store family default capacity = $\infty$ (items never block on \texttt{put()} unless you set a finite value).
+
+\subsection*{3. Store Family Details}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Store} (FIFO object queue): \texttt{yield store.put(item)}, \texttt{item = yield store.get()}. \texttt{store.items} is a plain Python list of your objects.
+\item \textbf{FilterStore} (selective retrieval): \texttt{item = yield fstore.get(filter=lambda i: i.category == "food" and i.weight < 2)}. Non-FIFO by design (later request can overtake if filter matches).
+\item \textbf{PriorityStore}: Uses \texttt{simpy.PriorityItem(priority, item)}. Lower number = higher priority.
+\end{itemize}
+
+\textbf{Common patterns}:
+\begin{itemize}[leftmargin=*]
+\item Producer--consumer (backpressure when buffer fills)
+\item Batch processing: \texttt{items = [yield store.get() for \_ in range(N)]}
+\end{itemize}
+
+\subsection*{4. Container (Bulk Flow)}
+\begin{itemize}[leftmargin=*]
+\item Holds a level (int/float), fungible items.
+\item \texttt{yield tank.put(30)} / \texttt{yield tank.get(25)}
+\item Blocks on full (put) or insufficient level (get).
+\item Atomic: all-or-nothing (no partial fills).
+\item Classic example: Gas station tank (periodic tanker refill at threshold).
+\end{itemize}
+
+\textbf{Container vs Store}:
+\begin{itemize}[leftmargin=*]
+\item Store $\rightarrow$ ``give me that specific item''
+\item Container $\rightarrow$ ``give me 25 units''
+\end{itemize}
+
+\subsection*{5. Act 2: Disruptions \& Coordination}
+\textbf{Manual events} (\texttt{env.event()}):
+\begin{itemize}[leftmargin=*]
+\item Bare event for signaling/broadcasting.
+\item \texttt{signal = env.event()}; \texttt{signal.succeed(value)} wakes all waiters.
+\item Pattern: \texttt{result = yield shift\_end | env.timeout(work)}
+\end{itemize}
+
+\textbf{process.interrupt()} (external disruption):
+\begin{itemize}[leftmargin=*]
+\item Throws \texttt{simpy.Interrupt} into a yielding process.
+\item Catch with \texttt{try/except simpy.Interrupt as ir:}.
+\item Record elapsed time $\rightarrow$ repair $\rightarrow$ resume remaining service.
+\item \textbf{Guard before interrupting} (preferred design): check machine state first to avoid nested interrupts.
+\end{itemize}
+
+\textbf{Breakdown pattern} (machine + breakdown process):
+\begin{itemize}[leftmargin=*]
+\item Machine: try/except around \texttt{timeout(svc\_time)}
+\item Breakdown: \texttt{yield timeout(mttf)} $\rightarrow$ \texttt{proc.interrupt("failure")}
+\item Optional: spare parts from a Store (repair waits for both part + repair time).
+\end{itemize}
+
+\subsection*{6. Capstone: Fulfillment Center (All Patterns Combined)}
+\textbf{System}:
+\begin{itemize}[leftmargin=*]
+\item \textbf{PriorityStore}: Order queue (express before standard)
+\item \textbf{FilterStore}: Shelves (SKU/category/weight filtering)
+\item \textbf{Store}: Conveyor buffers (\texttt{picker\_out} $\rightarrow$ \texttt{packer\_in})
+\item \textbf{Container}: Packing supplies (fungible units)
+\item \textbf{interrupt()}: Conveyor breakdown/repair
+\item Periodic restock (every 60 min)
+\end{itemize}
+
+\textbf{Key modeling choices}:
+\begin{itemize}[leftmargin=*]
+\item Separate RNG streams per source (6 streams)
+\item \texttt{placed\_at} timestamp for end-to-end latency
+\item Conveyor breakdown process runs independently
+\item Packer consumes 1 supply unit per order
+\end{itemize}
+
+\textbf{Three experiments} (results in full lecture):
+\begin{itemize}[leftmargin=*]
+\item Experiment 1: Baseline (no breakdowns, infinite supplies)
+\item Experiment 2: Add conveyor breakdowns
+\item Experiment 3: Vary picker/packer counts + supply policy
+\end{itemize}
+
+\textbf{Design insights}:
+\begin{itemize}[leftmargin=*]
+\item Starvation risk in PriorityStore (express orders starve standard)
+\item Non-FIFO in FilterStore (rare SKU orders can wait forever)
+\item Container level plot = visual health of the system (sawtooth)
+\item Bottleneck signals: empty \texttt{packer\_in} (conveyor), empty supplies (supply chain)
+\end{itemize}
+
+\subsection*{What You Learned Today}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Full resource taxonomy} + when to use \texttt{put()}/\texttt{get()} vs \texttt{request()}/\texttt{release()}
+\item \textbf{Store family} (FIFO, predicate, priority) + practical gotchas (non-FIFO, starvation)
+\item \textbf{Container} for bulk/fungible flow + atomic operations
+\item \textbf{env.event()} for clean inter-process signaling and broadcasting
+\item \textbf{process.interrupt()} for realistic breakdowns (remaining time, guarding)
+\item \textbf{Production-grade integration} in the fulfillment center (PriorityStore + FilterStore + Store + Container + interrupt)
+\end{itemize}
+
+\textbf{Bank Anchor Progress}: Spreadsheet $\rightarrow$ Hand Sim $\rightarrow$ SimPy $\rightarrow$ Multi-Server $\rightarrow$ Full DES $\rightarrow$ RNG/Input $\rightarrow$ Networks/Feedback $\rightarrow$ \textbf{Advanced Resources \& Disruptions} $\rightarrow$ Output Analysis (L9).
+
+\textbf{Next (Lecture 9)}: Output Analysis (replications, confidence intervals, comparing systems).
+
+You now have \textbf{every major SimPy modeling primitive} and can build statistically sound, maintainable models of complex real-world systems with object flow, bulk flow, priorities, selective retrieval, and realistic disruptions. Ready for any industrial simulation project!
+
+\section*{Lecture 09 Summary: Halfway Home -- Synthesizing the Modeling Half}
+\textbf{IE 306 -- Systems Simulation}
+Kerem Demirtas, Boğaziçi University, Spring 2026
+
+You have now completed the entire \textbf{modeling half} of the course (Lectures 1--8).  
+Lecture 9 is the \textbf{synthesis lecture} --- it ties everything together and prepares you for the \textbf{measurement/trust half} (Lectures 10--12).
+
+\subsection*{1. Where We Are in the Course}
+\begin{itemize}[leftmargin=*]
+\item \textbf{L1--L8}: You can now \textbf{build} a production-grade SimPy model (DES engine, SimPy objects, networks, resources, randomness, engineering practices).  
+\item \textbf{L9}: The bridge lecture.  
+\item \textbf{L10--L12}: You will learn how to \textbf{trust} the model (replications, warm-up, CRN, confidence intervals, steady-state analysis).
+\end{itemize}
+
+\textbf{Modeling done. Measurement next.}
+
+\subsection*{2. The Five Key Questions Every Simulation Must Answer}
+Every simulation project answers these five questions (the vocabulary that spans all lectures):
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{What} to model? (system boundary)  
+\item \textbf{When} does the clock advance? (clock / event scheduling)  
+\item \textbf{With what} randomness? (random streams / distributions)  
+\item \textbf{For whom} is the output? (who makes the decision?)  
+\item \textbf{How reliably}? (verification \& validation)
+\end{enumerate}
+
+No single lecture answers all five --- the synthesis in L9 fills the gap.
+
+\subsection*{3. The Five Questions Mapped to Lectures 1--8}
+
+\begin{verbatim}
+| Question          | L1     | L2          | L3     | L4          | L5     | L6     | L7          | L8              |
+|-------------------|--------|-------------|--------|-------------|--------|--------|-------------|-----------------|
+| What (boundary)   | primary| ---           | ---      | ---           | ---      | ---      | network     | flow            |
+| When (clock)      | ---      | primary     | tick   | ---           | ---      | ---      | ---           | interrupt       |
+| Randomness        | Monte  | ---           | ---      | ---           | ---      | primary| ---           | ---               |
+| For whom          | primary| ---           | ---      | capacity    | ---      | ---      | ---           | design          |
+| Reliability (V&V) | ---      | hand-sim    | ---      | Little      | ---      | Q-Q    | Jackson     | availability    |
+\end{verbatim}
+
+\subsection*{4. The Checklist (Ask BEFORE You Click Run)}
+Before running any simulation, perform these five checks:
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Boundary}: What is outside my model that I am treating as input?  
+\item \textbf{Clock}: Do I ever need to advance zero time?  
+\item \textbf{Randomness}: Do my streams share a generator?  
+\item \textbf{User}: Who decides based on this output?  
+\item \textbf{Reliability}: Do I report a single number or a range?
+\end{enumerate}
+
+\subsection*{5. Core Concepts \& ``One Thing to Never Forget'' (L1--L8)}
+
+\textbf{L1--L2}
+``A model is a question in disguise. No question, no model.''  
+If you cannot name the decision, you cannot scope the system.
+
+\textbf{L3}
+``Registration order determines tie-breaking at the same simulated time.''  
+Same-tick events are ordered by event-id (unless you insert \texttt{timeout(0)}).
+
+\textbf{L4}
+``Capacity is what you buy; utilization is what you pay for.''  
+$\rho$ is an output, not a knob.
+
+\textbf{L5}
+``A customer who leaves is still data.''  
+Reneging, balking, scrap --- count the abandoned entities.
+
+\textbf{L6}
+``Same mean, different variance --- different system.''  
+Distribution choice is not cosmetic. CV drives queueing.
+
+\textbf{L7}
+``Feedback changes $\lambda$. Always recompute $\rho$ after adding a loop.''  
+External $\lambda$ is not what the bottleneck sees.
+
+\textbf{L8}
+``Ask who owns the thing. Slots are borrowed; items are produced.''  
+Resource family = borrow-and-return  
+Store / Container family = produce-and-consume
+
+\subsection*{6. Key Modeling Patterns \& Decisions}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Behavior Pattern Landscape} (balking, reneging, jockeying, rework, preemption, interruption) --- know the SimPy mechanism for each.
+\item \textbf{Resource-Type Decision Tree} (Resource vs Priority/Preemptive vs Store/FilterStore/PriorityStore vs Container).
+\item \textbf{Access vs Flow} distinction (L3--7 vs L8).
+\item \textbf{FilterStore is NOT FIFO} --- first matching predicate wins.
+\item \textbf{Little's Law as sanity check} ($\sum L_{\text{stage}} \approx \lambda \cdot W_{e2e}$).
+\item \textbf{Utilization is not a goal} --- the hockey-stick curve.
+\end{itemize}
+
+\subsection*{7. Common Pitfalls (Top 7)}
+\begin{enumerate}[leftmargin=*]
+\item Missing \texttt{yield} (L3)  
+\item Shared RNG streams (L6)  
+\item Priority starvation (L5/L7)  
+\item FIFO assumption on FilterStore (L8)  
+\item $\lambda_{\text{eff}}$ forgotten in feedback loops (L7)  
+\item Single-run reporting (L10 ahead)  
+\item $\rho$ $\geq$ 1 ignored (L4)
+\end{enumerate}
+
+\subsection*{8. Debugging Discipline}
+\begin{itemize}[leftmargin=*]
+\item Trace prints at every state transition (collapse once correct).  
+\item Start deterministic, then add randomness.  
+\item Verify before you validate.  
+\item Little's Law as first check.
+\end{itemize}
+
+\subsection*{9. When to Stop Modeling}
+\begin{itemize}[leftmargin=*]
+\item Diminishing returns: new detail must change a decision, not just match reality.  
+\item Scope creep is the largest modeling risk.
+\end{itemize}
+
+\subsection*{10. Preview of What's Next (L10--L12)}
+\begin{itemize}[leftmargin=*]
+\item \textbf{L10}: Replications, confidence intervals, Welch's warm-up, terminating vs steady-state.  
+\item \textbf{L11}: Common Random Numbers (CRN) for paired comparisons.  
+\item \textbf{L12}: Batch means, MSER warm-up detection, run-length adequacy.
+\end{itemize}
+
+\textbf{Halfway Home Message}
+You can now \textbf{build} the model.  
+Next you will learn how to \textbf{trust} it.
+
+You now have a complete modeling toolkit and the vocabulary to think like a professional simulation engineer. Ready for the measurement half!
+\end{document}

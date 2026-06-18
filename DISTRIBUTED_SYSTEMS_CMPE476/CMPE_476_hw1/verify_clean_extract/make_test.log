@@ -1,0 +1,51 @@
+gcc -std=c11 -D_GNU_SOURCE -Wall -Wextra -Wpedantic -O2 -g -c tests.c -o tests.o
+gcc -std=c11 -D_GNU_SOURCE -Wall -Wextra -Wpedantic -O2 -g -c protocol.c -o protocol.o
+gcc -std=c11 -D_GNU_SOURCE -Wall -Wextra -Wpedantic -O2 -g -c buffer.c -o buffer.o
+gcc  -o test_runner tests.o protocol.o buffer.o -lpthread -lcunit
+./test_runner
+
+
+     CUnit - A unit testing framework for C - Version 2.1-3
+     http://cunit.sourceforge.net/
+
+
+Suite: parse_request
+  Test: test_parse_null_args ...passed
+  Test: test_parse_ping ...passed
+  Test: test_parse_time ...passed
+  Test: test_parse_stats ...passed
+  Test: test_parse_quit ...passed
+  Test: test_parse_echo_empty ...passed
+  Test: test_parse_echo_payload ...passed
+  Test: test_parse_echo_preserves_extra_spaces ...passed
+  Test: test_parse_empty_line ...passed
+  Test: test_parse_unknown ...passed
+  Test: test_parse_leading_space_is_unknown ...passed
+  Test: test_parse_case_sensitive ...passed
+Suite: format_response
+  Test: test_format_null_args ...passed
+  Test: test_format_ping ...passed
+  Test: test_format_echo ...passed
+  Test: test_format_echo_empty ...passed
+  Test: test_format_time ...passed
+  Test: test_format_stats ...passed
+  Test: test_format_quit ...passed
+  Test: test_format_unknown ...passed
+  Test: test_format_too_long ...passed
+Suite: set_nonblocking
+  Test: test_set_nonblocking_sets_flag ...passed
+Suite: buffer
+  Test: test_buffer_init ...passed
+  Test: test_buffer_single_line ...passed
+  Test: test_buffer_crlf_stripped ...passed
+  Test: test_buffer_partial_line ...passed
+  Test: test_buffer_multiple_lines ...passed
+  Test: test_buffer_overflow_latches_too_long ...passed
+  Test: test_buffer_null_guards ...passed
+
+Run Summary:    Type  Total    Ran Passed Failed Inactive
+              suites      4      4    n/a      0        0
+               tests     29     29     29      0        0
+             asserts     68     68     68      0      n/a
+
+Elapsed time =    0.000 seconds

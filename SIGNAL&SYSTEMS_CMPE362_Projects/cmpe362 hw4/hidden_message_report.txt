@@ -1,0 +1,33 @@
+Hidden Message Analysis Report
+Date: 2026-03-12
+
+Most probable hidden message:
+I SEE YOU
+
+Why this is the best current answer:
+1) Focused ultrasonic BFSK demodulation (around 17.6 kHz carrier) repeatedly produced the pattern:
+   L?Isee?O  /  l?iSEE?o
+   The stable core is "I SEE" and the missing/non-printable positions are most consistent with a space and "Y/U" region.
+
+2) Stability sweep (extra validation):
+   - Carrier sweep: 17580 to 17620 Hz
+   - Window sweep: 40, 50, 60, 80 ms
+   - Symbol time sweep: 0.155 to 0.190 s
+   - Offsets/inversion/bit order/key variants tested
+   Result:
+   - total raw hits: 40
+   - top normalized pattern: L?ISEE?O (40/40)
+   - family support ratio for "I + SEE + ending O/U-like pattern": 1.0
+
+3) Independent methods tested earlier (DTMF, Morse, stego byte/LSB scans) did not produce a clearer full phrase than this.
+
+Important caveat:
+- A downsampled independent replay test did not preserve the same clean character recovery. This suggests the decode is sensitive to timing and demodulation parameters.
+- Because of this, confidence is not absolute.
+
+Confidence level:
+Medium-High
+
+Short conclusion:
+Given all tests, the strongest and most repeatable interpretation is:
+I SEE YOU

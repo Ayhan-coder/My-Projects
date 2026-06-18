@@ -1,0 +1,33 @@
+Demucs-inspired Python Music/Speech Separation Variants
+=======================================================
+
+Prerequisites
+-------------
+1) Activate your virtual environment.
+2) Install packages:
+   pip install demucs soundfile
+
+
+Variant 1 (vocals as speech)
+----------------------------
+python music_speech_sep_demucs_v1.py --input cafe_sample.wav --output-dir .
+
+Output files:
+- cafe_sample_vocals_only_music.wav
+- cafe_sample_vocals_only_speech.wav
+
+
+Variant 2 (vocals + some 'other' as speech)
+-------------------------------------------
+python music_speech_sep_demucs_v2.py --input cafe_sample.wav --output-dir . --other-in-speech 0.25
+
+Output files:
+- cafe_sample_vocals_plus_other_music.wav
+- cafe_sample_vocals_plus_other_speech.wav
+
+
+Useful options (both variants)
+------------------------------
+--model htdemucs         # or htdemucs_ft, mdx_extra, etc.
+--device cpu             # use --device cuda if CUDA is available
+--keep-stems             # keep Demucs raw stems under ./demucs_stems/

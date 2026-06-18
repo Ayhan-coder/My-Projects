@@ -1,0 +1,12 @@
+=== BEST Melody Parameters ===
+
+Number of notes: 0
+Total duration: 0.000s
+
+MATLAB Format:
+frequencies = [];
+durations = [];
+
+Detailed breakdown:
+Note | Frequency (Hz) | Duration (s) | Strength | Musical Note
+----------------------------------------------------------------------
