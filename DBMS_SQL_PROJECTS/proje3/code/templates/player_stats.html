@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Match Stats</title>
+</head>
+<body>
+    <h2>Opponents You've Played Against</h2>
+    {% if opponents %}
+        <ul>
+        {% for o in opponents %}
+            <li>{{ o.opponent }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No matches found.</p>
+    {% endif %}
+
+    <h2>Most Frequent Co-Player(s)</h2>
+    {% if most_freq %}
+        <p>You played the most with:</p>
+        <ul>
+            {% for p in most_freq %}
+                <li>{{ p }}</li>
+            {% endfor %}
+        </ul>
+        <p>Average ELO of these players: {{ "%.2f"|format(avg_elo or 0) }}</p>
+    {% else %}
+        <p>No co-player data available.</p>
+    {% endif %}
+
+    <br><a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

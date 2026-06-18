@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run audio_aliasing.m",
+			"type": "shell",
+			"command": "matlab",
+			"args": [
+				"-nosplash",
+				"-r",
+				"cd('c:\\\\Users\\\\Slayer\\\\Desktop\\\\cmpe362 hw3'); run('audio_aliasing.m')"
+			],
+			"group": "test"
+		},
+		{
+			"label": "Run image_aliasing.m",
+			"type": "shell",
+			"command": "matlab",
+			"args": [
+				"-nosplash",
+				"-r",
+				"cd('c:\\\\Users\\\\Slayer\\\\Desktop\\\\cmpe362 hw3'); run('image_aliasing.m')"
+			],
+			"group": "test"
+		}
+	]
+}

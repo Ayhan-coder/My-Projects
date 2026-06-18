@@ -1,0 +1,367 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  keywordstyle=\bfseries,
+}
+
+\title{Project Report\\Systems Programming – Spring 2025}
+\author{Ali Ayhan Gunder, 2021400219\\Yunus Emre Ozturk, 2022400204}
+\date{April 12, 2025}
+
+\begin{document}
+\maketitle
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section*{Contents}
+\noindent 1\quad Introduction \dotfill \\
+\noindent\quad 1.1\quad Problem Statement \dotfill \\
+\noindent\quad 1.2\quad Objectives \dotfill \\
+\noindent\quad 1.3\quad Motivation \dotfill \\[0.5em]
+\noindent 2\quad Problem Description \dotfill \\
+\noindent\quad 2.1\quad Constraints \dotfill \\
+\noindent\quad 2.2\quad Example of Input and Output \dotfill \\[0.5em]
+\noindent 3\quad Methodology \dotfill \\
+\noindent\quad 3.1\quad Data Structures \dotfill \\
+\noindent\quad 3.2\quad Helper Functions \dotfill \\
+\noindent\quad 3.3\quad Command Processing \dotfill \\
+\noindent\quad 3.4\quad Input/Output \dotfill \\
+\noindent\quad 3.5\quad Error Handling \dotfill \\[0.5em]
+\noindent 4\quad Implementation \dotfill \\
+\noindent\quad 4.1\quad Code Structure \dotfill \\
+\noindent\quad 4.2\quad Sample Code \dotfill \\[0.5em]
+\noindent 5\quad Results \dotfill \\[0.5em]
+\noindent 6\quad Discussion \dotfill \\[0.5em]
+\noindent 7\quad Conclusion \dotfill 
+
+
+\section{Introduction}
+This project implements a C-based command interpreter to manage Geralt of Rivia’s inventory, bestiary, and potion formulas. It simulates core mechanics from The Witcher universe by enforcing strict grammar for text-based commands, enabling operations like looting, trading, brewing, and learning. The interpreter maintains state through structured global arrays and demonstrates key programming principles including string parsing, modularity, and robust error handling.
+
+Problem Statement:  
+Geralt has lost his memory and needs a system to keep track of his alchemical ingredients,  
+potions, monster trophies, knowledge of potion formulas, and bestiary information about  
+monsters and how to defeat them.
+
+Objectives:
+\begin{itemize}
+  \item Develop a C program that can process three types of input: sentences (actions, knowledge, encounters), questions (queries about inventory, bestiary, alchemy), and an exit command.
+  \item Implement an inventory system to store and manage alchemical ingredients, potions, and monster trophies.
+  \item Create a bestiary to store information about monsters and effective ways to counter them.
+  \item Develop an alchemy section to track potion formulas and brewing.
+  \item Ensure the program adheres specific grammar rules for input processing and provides appropriate responses
+\end{itemize}
+
+Motivation:  
+The motivation behind this project is to create a tool that simulates and manages various aspects of a Witcher's life, including gathering resources, learning about monsters, brewing potions, and tracking inventory.
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section{Problem Description}
+The project requires the development of a C program that functions as an interpreter and inventory-event tracking system for Geralt of Rivia, a Witcher. The program must process three types of input: sentences, questions, and an exit command, each with specific formats and purposes.
+
+Detailed Problem Description:  
+The core problem is to simulate and manage Geralt's inventory, his knowledge, and his interactions within the game world. This involves:
+\begin{itemize}
+  \item Inventory Management: Tracking alchemical ingredients, potions, and monster trophies.
+  \item Knowledge Tracking: Storing information about potion formulas and effective methods (potions and signs) against monsters.
+  \item Action Processing: Executing actions such as looting ingredients, trading trophies, brewing potions, learning new information, and encountering monsters.
+  \item Query Responses: Answering questions about the contents of Geralt's inventory, bestiary, and alchemy knowledge.
+  \item Input Validation: Ensuring that all input adheres to a defined grammar.
+\end{itemize}
+
+Given Constraints:
+\begin{itemize}
+  \item Input Format: Input must follow the specified grammar rules. Invalid inputs should be handled by responding with "INVALID".
+  \item Initial State: Geralt starts with no items, potions, or knowledge of potion formulas or monster weaknesses.
+  \item Naming Conventions: Specific rules for naming entities like ingredients, monsters, potions, and signs.
+  \item Output Format: The program should provide specific responses for each valid input, as demonstrated in the examples.
+  \item Resource Constraints: There is a time limit of 30 seconds for program execution.
+\end{itemize}
+
+Expected Inputs and Outputs:
+\begin{itemize}
+  \item \textbf{Inputs:}
+    \begin{itemize}
+      \item Sentences: Instructions for actions (e.g., "Geralt loots 5 Rebis"), knowledge acquisition (e.g., "Geralt learns Black Blood potion consists of 3 Vitriol, 2 Rebis, 1 Quebrith"), or monster encounters (e.g., "Geralt encounters a Bruxa").
+      \item Questions: Queries about inventory (e.g., "Total ingredient Vitriol ?"), bestiary (e.g., "What is effective against Bruxa ?"), or alchemy (e.g., "What is in Black Blood ?").
+      \item Exit Command: "Exit" to terminate the program.
+    \end{itemize}
+  \item \textbf{Outputs:}
+    \begin{itemize}
+      \item Responses to actions: Confirmation messages (e.g., "Alchemy ingredients obtained", "Trade successful") or error messages (e.g., "Not enough trophies", "No formula for Black Blood").
+      \item Answers to questions: Information about inventory (e.g., "10 Vitriol", "None"), bestiary (e.g., "Black Blood, Yrden", "No knowledge of Wraith"), or alchemy (e.g., "3 Vitriol, 2 Rebis, 1 Quebrith", "No formula for Full Moon").
+      \item Error message: "INVALID" for any input that does not conform to the defined grammar.
+    \end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section{Methodology}
+\subsection*{1. Data Structures}
+The code defines several struct types to represent the game entities:
+\begin{itemize}
+  \item Ingredient: Stores the name and quantity of an ingredient.
+  \item Potion: Stores the name and quantity of a potion.
+  \item Trophy: Stores the monster name and quantity of a trophy.
+  \item MonsterEntry: Stores a monster's name and the potions and signs effective against it.
+  \item PotionFormula: Stores the potion's name and the ingredients required to brew it.
+\end{itemize}
+The code also declares global arrays to store collections of these entities:
+\texttt{ingredients\_inventory}, \texttt{potions\_inventory}, \texttt{trophies\_inventory}, \texttt{bestiary}, and \texttt{formulas}.
+
+\subsection*{2. Helper Functions}
+The code includes several helper functions to manage data and process input:
+\begin{itemize}
+  \item \texttt{trim()}: Removes leading and trailing whitespace from a string.
+  \item \texttt{remove\_question\_mark()}: Removes the trailing question mark from a query string.
+  \item \texttt{add\_ingredient()}, \texttt{get\_ingredient\_quantity()}, \texttt{subtract\_ingredient()}: Functions to manage the ingredient inventory.
+  \item \texttt{add\_potion()}, \texttt{get\_potion\_quantity()}: Functions to manage the potion inventory.
+  \item \texttt{add\_trophy()}, \texttt{get\_trophy\_quantity()}, \texttt{remove\_trophy()}: Functions to manage the trophy inventory.
+  \item \texttt{parse\_ingredient\_list()}: Parses a string of ingredients and their quantities.
+  \item \texttt{find\_formula\_index()}, \texttt{add\_formula()}: Functions to manage potion formulas.
+  \item \texttt{find\_bestiary\_index()}, \texttt{add\_effectiveness()}: Functions to manage the bestiary.
+  \item \texttt{cmp\_ingredient()}, \texttt{cmp\_formula()}: Comparison functions for sorting.
+\end{itemize}
+
+\subsection*{3. Command Processing}
+The \texttt{execute\_line()} function is the core of the program. It takes a line of input, parses it, and executes the corresponding action or query.
+\begin{itemize}
+  \item It uses \texttt{strncmp()} and \texttt{strcmp()} to identify the command type.
+  \item It calls helper functions to perform actions like adding ingredients, brewing potions, trading trophies, and adding bestiary entries.
+  \item It uses \texttt{sscanf()} and \texttt{strtok()} to parse the input string and extract data.
+  \item It calls helper functions to answer queries about the inventory, bestiary, and alchemy.
+  \item It uses \texttt{qsort()} to sort ingredients and potion formulas when necessary.
+\end{itemize}
+
+\subsection*{4. Input/Output}
+\begin{itemize}
+  \item The \texttt{main()} function handles the main input/output loop.
+  \item It uses \texttt{fgets()} to read input from the user.
+  \item It calls \texttt{execute\_line()} to process the input.
+  \item It uses \texttt{printf()} to display output to the user.
+\end{itemize}
+
+\subsection*{5. Error Handling}
+\begin{itemize}
+  \item The code returns \texttt{-1} from \texttt{execute\_line()} to indicate an invalid command.
+  \item The \texttt{main()} function prints "INVALID" when it receives \texttt{-1}.
+  \item Helper functions like \texttt{parse\_ingredient\_list()} also return error codes (e.g., \texttt{-1}) to indicate invalid input.
+\end{itemize}
+
+Additional Notes:
+\begin{itemize}
+  \item The code uses global arrays to store the system's state. While this is simple, it might be less organized for larger projects.
+  \item The code assumes a maximum number of items, potions, trophies, etc. (e.g., \texttt{MAX\_INGREDIENTS}).
+  \item String manipulation is done using \texttt{strcpy()}, \texttt{strncpy()}, \texttt{strcmp()}, \texttt{strstr()}, and \texttt{strtok()}.
+\end{itemize}
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section{Implementation}
+\subsection{4.1 Code Structure}
+The code is organized into modular components to ensure clarity, maintainability, and separation of concerns. It is implemented entirely in C using a single file structure and leverages global state management through arrays and structured types. Below are the primary components:
+\begin{itemize}
+  \item Data Models: Defined using \texttt{typedef struct}, the key data types include Ingredient, Potion, Trophy, MonsterEntry, and PotionFormula. Each holds relevant fields such as names, quantities, and associated effects.
+  \item Global Arrays and Counters: Each category of data is stored in a fixed-size global array (e.g., \texttt{ingredients\_inventory[]}, \texttt{bestiary[]}) with associated counters (e.g., \texttt{ingredient\_count}) to track usage.
+  \item Inventory Management Functions:
+    \begin{itemize}
+      \item \texttt{add\_ingredient()}, \texttt{get\_ingredient\_quantity()}, and \texttt{subtract\_ingredient()} manage ingredient data.
+      \item \texttt{add\_potion()}, \texttt{get\_potion\_quantity()} manage potion data.
+      \item \texttt{add\_trophy()}, \texttt{remove\_trophy()}, \texttt{get\_trophy\_quantity()} manage trophy data.
+    \end{itemize}
+  \item Alchemy and Formula Logic:
+    \begin{itemize}
+      \item \texttt{add\_formula()} and \texttt{find\_formula\_index()} manage known potion recipes.
+      \item \texttt{parse\_ingredient\_list()} validates and parses user input strings into usable ingredient arrays.
+    \end{itemize}
+  \item Bestiary System:
+    \begin{itemize}
+      \item \texttt{add\_effectiveness()} and \texttt{find\_bestiary\_index()} store and retrieve effectiveness data for monsters.
+    \end{itemize}
+  \item Command Parsing and Execution:
+    \begin{itemize}
+      \item \texttt{execute\_line()} acts as the interpreter, matching strings against command patterns (e.g., Geralt loots, Geralt brews) and executing corresponding logic.
+      \item Each command is verified for syntax and semantic correctness; invalid commands return \texttt{-1} to signal errors.
+    \end{itemize}
+  \item Sorting and Output:
+    \begin{itemize}
+      \item Comparators such as \texttt{cmp\_ingredient()}, \texttt{cmp\_ingredient\_desc()} allow alphabetic or quantity-based sorting.
+      \item \texttt{qsort()} is used to sort lists prior to display for user queries.
+    \end{itemize}
+  \item User Interaction Loop:
+    \begin{itemize}
+      \item The \texttt{main()} function handles user input with prompts and ends execution on the keyword Exit.
+    \end{itemize}
+\end{itemize}
+
+\subsection{4.2 Sample Code}
+Below are several key functions from the implementation.
+
+\paragraph{Command Execution (\texttt{execute\_line})}
+\begin{lstlisting}
+int execute_line(const char *line) {
+    char cmd[1024];
+    strcpy(cmd, line);
+    
+    size_t len = strlen(cmd);
+    if (len > 0 && cmd[len - 1] == '\n') {
+        cmd[len - 1] = '\0';
+    }
+
+    if (strncmp(cmd, "Geralt loots ", 13) == 0) {
+        const char *rest = cmd + 13;
+        Ingredient arr[10];
+        int cnt = parse_ingredient_list(rest, arr);
+        if (cnt < 0) return -1;
+        for (int i = 0; i < cnt; i++) {
+            add_ingredient(arr[i].name, arr[i].quantity);
+        }
+        printf("Alchemy ingredients obtained\n");
+        return 0;
+    }
+
+    /* ... other action handlers ... */
+
+    return -1;
+}
+\end{lstlisting}
+
+\paragraph{Parsing an Ingredient List (\texttt{parse\_ingredient\_list})}
+\begin{lstlisting}
+int parse_ingredient_list(const char *str, Ingredient *arr) {
+    char buf[256];
+    strncpy(buf, str, sizeof(buf));
+    buf[sizeof(buf)-1] = '\0';
+    char *tok = strtok(buf, ",");
+    int count = 0;
+    while (tok && count < MAX_INGS) {
+        int qty;
+        char name[64];
+        if (sscanf(tok, "%d %63s", &qty, name) != 2) return -1;
+        arr[count].quantity = qty;
+        strcpy(arr[count].name, name);
+        count++;
+        tok = strtok(NULL, ",");
+    }
+    return count;
+}
+\end{lstlisting}
+
+\paragraph{Managing Potion Formulas}
+\begin{lstlisting}
+int find_formula_index(const char *name) {
+    for (int i = 0; i < formula_count; i++) {
+        if (strcmp(formulas[i].name, name) == 0) return i;
+    }
+    return -1;
+}
+
+void add_formula(const char *name, Ingredient *ings, int count) {
+    int idx = find_formula_index(name);
+    if (idx < 0) idx = formula_count++;
+    strcpy(formulas[idx].name, name);
+    formulas[idx].ingredient_count = count;
+    for (int i = 0; i < count; i++) {
+        formulas[idx].ingredients[i] = ings[i];
+    }
+}
+\end{lstlisting}
+
+\paragraph{Recording Bestiary Effects (\texttt{add\_effectiveness})}
+\begin{lstlisting}
+void add_effectiveness(const char *monster, const char *effect) {
+    int idx = find_bestiary_index(monster);
+    if (idx < 0) idx = add_bestiary_entry(monster);
+    strcpy(bestiary[idx].effects[bestiary[idx].effect_count++], effect);
+}
+\end{lstlisting}
+
+\paragraph{Handling a Query (e.g., Total Ingredient)}
+\begin{lstlisting}
+if (strncmp(cmd, "Total ingredient ", 17) == 0) {
+    char name[64];
+    sscanf(cmd + 17, "%63s", name);
+    int qty = get_ingredient_quantity(name);
+    if (qty > 0)
+        printf("%d %s\n", qty, name);
+    else
+        printf("None\n");
+    return 0;
+}
+\end{lstlisting}
+
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section{Results}
+Tested with sample input commands. Successful cases output expected confirmation messages; invalid input returns "INVALID". The grammar enforcement and structured output meet the project specifications. I added two more testcase to given testcase and achive 100 percent succes in grader after some corrections.
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section{Discussion}
+The interpreter meets its core goals and efficiently maintains state. However, the use of fixed-size arrays limits scalability. Future improvements could include persistent storage, dynamic data structures, and support for more advanced grammar. Additionally, using a wider variety of data structures may enhance performance and reduce runtime. Nonetheless, the current implementation is sufficient for programs with small input sizes.
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section{Conclusion}
+The Witcher Tracker project demonstrates the effective use of C programming for building a text‑based, stateful interpreter that faithfully models key aspects of Geralt’s journey. By combining a clean, modular design with rigorous input validation and error handling, the system not only meets all functional requirements—inventory management, bestiary tracking, alchemical formula processing, and query answering—but also provides clear, user‑friendly feedback in response to both valid and invalid commands.
+
+Throughout development, we adhered to strict grammar rules and leveraged a suite of helper functions to encapsulate low‑level details, resulting in code that is easy to read, maintain, and extend. The use of fixed‑size global arrays simplified state management and ensured predictable performance under the 30‑second execution constraint, while sorting routines and formatted output guaranteed consistent, alphabetically ordered listings when queried.
+
+Looking ahead, several avenues for enhancement present themselves. Integrating dynamic data structures (e.g., linked lists or hash tables) would remove hard limits on the number of ingredients, potions, and trophies. Persistent storage—through file I/O or a lightweight database could allow Geralt’s progress to be saved and resumed across sessions. 
+
+In conclusion, the Witcher Tracker achieves its goal of simulating core Witcher mechanics in C, balancing simplicity and robustness. The project serves as a solid foundation for further experimentation with language parsing, data persistence, and user interface design bringing us one step closer to a fully immersive text‑based Witcher experience.
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section*{References}
+\begin{itemize}
+  \item Lecture - Problem Session Slides
+  \item Q/A messages in Piazza
+  \item Ritchie, Dennis M., Brian W. Kernighan, and Michael E. Lesk. The C programming language. Englewood Cliffs: Prentice Hall, 1988
+\end{itemize}
+
+\begin{verbatim}
+
+\end{verbatim}
+
+\section*{AI Assistants}
+AI tools such as ChatGPT were used for the following:
+\begin{itemize}
+  \item Clarifying C programming concepts
+  \item Debugging support for code
+  \item Testcase Generation for testing with grader
+  \item Grammar and spelling correction in documentation
+  \item Enriching latex syntax and format
+\end{itemize}
+All implementation decisions and coding were performed by the project authors.
+
+\end{document}

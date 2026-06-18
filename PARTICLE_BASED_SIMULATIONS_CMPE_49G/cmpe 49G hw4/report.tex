@@ -1,0 +1,149 @@
+% CMPE49G — Project 3 Report
+% Compile from the workspace root so the image paths (out/...) resolve.
+%
+% Example (pdfLaTeX):
+%   pdflatex report.tex
+%
+% Rename the produced PDF to:
+%   <stuID>_prj3_<name>_<surname>.pdf
+
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{enumitem}
+
+% Look for images in ./report_images, ./out, or next to the .tex file
+\graphicspath{{./report_images/}{./out/}{./}}
+
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue}
+
+% ---- Fill these in ----
+\newcommand{\StudentID}{STUID}
+\newcommand{\StudentName}{Name Surname}
+
+% Safe includegraphics for filenames with underscores
+\newcommand{\Img}[2][]{%
+	\includegraphics[#1]{\detokenize{#2}}%
+}
+
+% One visual per page (image ~60% of page height)
+\newcommand{\ArtPage}[4]{%
+	\clearpage
+	{\Large\textbf{#1}}\\[-2pt]
+	{\normalsize\textit{#2}}\\[10pt]
+	\begin{center}
+		\Img[width=\textwidth,height=0.62\textheight,keepaspectratio]{#3}
+	\end{center}
+	\vspace{6pt}
+	{#4}
+}
+
+\begin{document}
+
+\begin{center}
+	{\LARGE\textbf{CMPE49G Project 3}}\\[6pt]
+	{\Large Generative Art with Diffusion, Flow Field, and Perlin-like Noise}\\[10pt]
+	{\normalsize Student ID: 2021400219 \quad\textbullet\quad Ali Ayhan Günder}\\[6pt]
+	{\normalsize \today}
+\end{center}
+
+\section{Introduction (Generative Art)}
+Generative art refers to artwork created in whole or in part by an autonomous system---an algorithmic process
+that makes some of the aesthetic decisions that would otherwise be made manually by the artist.
+The human role shifts toward designing rules, constraints, and parameters (including controlled randomness),
+then allowing the program to produce a final composition.
+
+In practice, a generative system often combines:
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+	\item \textbf{Structure:} a set of rules or a simulation (e.g., particles moving in a vector field).
+	\item \textbf{Stochasticity:} randomness to avoid repetition and to introduce variation.
+	\item \textbf{Constraints / bias:} composition choices (where things start, where they avoid, what they prefer).
+	\item \textbf{Layering:} repeated passes with different parameters to build depth and texture.
+\end{itemize}
+
+\section{Perlin Noise and Coherent Fields}
+Perlin noise is a coherent noise function: nearby points in space produce similar values.
+This spatial coherence is useful for creating natural-looking textures and motion because the signal changes
+smoothly instead of jumping randomly.
+
+A common extension is \textbf{fractal Brownian motion} (fBm), which sums several octaves of noise at different
+scales. The result contains both large-scale structure and fine detail, which is ideal for organic patterns.
+In this project implementation, a self-contained Perlin-like coherent noise (value noise + fBm) is used to build
+smooth fields and modulation maps.
+
+\section{Method: Diffusion + Flow Field + Noise + Bias}
+Across the portfolio, Perlin-like coherent noise is used to build flow fields and/or to modulate geometric and
+color parameters. The core particle-based method is:
+
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+	\item \textbf{Noise field:} build a smooth scalar field $N(x,y) \in [0,1]$ (multi-octave coherent noise).
+	\item \textbf{Flow field:} map noise to an angle $\theta(x,y)$ and velocity
+		$\vec{v}(x,y) = (\cos\theta,\,\sin\theta)$. A typical mapping is $\theta(x,y)=2\pi N(x,y)$.
+	\item \textbf{Advection + diffusion:} move particles by both the flow and random diffusion
+		\[
+		\vec{p}_{t+1} = \vec{p}_t + s\,\vec{v}(\vec{p}_t) + \sigma\,\vec{\eta}_t,
+		\]
+		where $\vec{\eta}_t$ is Gaussian noise, $s$ controls flow speed, and $\sigma$ controls diffusion strength.
+	\item \textbf{Reaction-diffusion variant:} a Gray--Scott process is simulated with spatially biased parameters
+		(Feed/Kill maps modulated by coherent noise), then color-mapped for final rendering.
+	\item \textbf{Bias structure:} use non-uniform spawning (favoring a region), avoidance (a void), or layered
+		starting distributions so the composition develops focal areas instead of uniform coverage.
+\end{itemize}
+
+Multiple passes are layered with different opacity/brush/seed parameters. Some pieces also use noise to warp
+stripes directly (a non-particle method), but the underlying principle remains the same: coherent noise drives
+smooth variation and structure.
+
+\section{Inspiration Sources}
+\small
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+	\item \url{https://laptrinhx.com/what-i-felt-through-7-days-of-learning-generative-art-984918680/}
+	\item \url{http://algorithmicartmeetup.blogspot.com/}
+	\item \url{https://manning-content.s3.amazonaws.com/download/c/85bbb4d-ee4f-46d2-9bc1-03b6f23b231f/GenArt-Sample-Intro.pdf}
+	\item \url{https://ibby.blog/creative-coding-intro/}
+	\item \url{https://effyfan.com/2018/03/02/w6-van-gogh-flowfield/}
+\end{itemize}
+\normalsize
+
+\ArtPage
+{Cellular Tempest}
+{\texttt{reaction\_diffusion} --- Gray--Scott diffusion with noise-biased feed/kill maps}
+{reaction_diffusion_storm_pro_seed89_3840x2160.png}
+{\textbf{Story.} This piece grows from a small chemical seed into a storm of branching membranes.
+The reaction and diffusion terms compete across the canvas, while coherent-noise parameter maps bias where activity
+accelerates or calms down. The result feels like a living weather system: organized at a large scale, but turbulent
+in local detail.}
+
+\ArtPage
+{Prismatic Mandala}
+{\texttt{kaleido\_noise} --- coherent-noise color field with kaleidoscopic remap}
+{kaleido_noise_colorful_pro_seed74_3840x2160.png}
+{\textbf{Story.} A smooth noise-based color field is folded with kaleidoscopic symmetry.
+The mirrored wedges create a radial choreography where tiny local variations still stay coherent.
+It feels like a stained-glass mandala generated by wind, math, and color memory.}
+
+\ArtPage
+{Festival Drift}
+{\texttt{confetti} --- dense flat ribbons with randomized curvature and spacing bias}
+{confetti_colorful_pro_seed712_3840x2160.png}
+{\textbf{Story.} Thousands of curved fragments scatter across the page like a frozen celebration.
+Each ribbon has small variations in length, thickness, and curvature, creating visual rhythm without repetition.
+The composition balances playful chaos with color harmony, like a parade seen from above.}
+
+\ArtPage
+{Aurora Luminescence}
+{\texttt{aurora} --- coherent-noise field with radiant glow and polar color gradients}
+{aurora_auto_seed120_3840x2160.png}
+{\textbf{Story.} Soft waves of emerald and violet sweep across an imagined night sky, modulated by smooth noise fields that shift and pulse like the northern lights. The technique layers color gradients guided by Perlin-like coherence, building regions of intensity where the field values peak. The result evokes the serene yet dynamic beauty of an aurora borealis, where mathematics becomes natural wonder.}
+
+\ArtPage
+{Desert Undulation}
+{\texttt{dunes} --- topographic flow with fBm layering and directional bias}
+{dunes_auto_seed110_3840x2160.png}
+{\textbf{Story.} This piece evokes vast desert landscapes through layered Perlin noise at multiple scales. The composition uses slope shading and directional bias to create rolling dunes that feel organic yet structured. Each ripple is mathematically sculpted, blending the precision of algorithm with the beauty of natural terrain.}
+
+\end{document}

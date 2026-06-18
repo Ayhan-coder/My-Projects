@@ -1,0 +1,104 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{Homework 3: Aliasing}
+\subtitle{Audio, Image, and Video}
+\author{Ali Ayhan G\"under (2021400219)}
+\institute{CMPE 362 -- Signal Processing, Spring 2026}
+\date{\today}
+
+\begin{document}
+
+% --- Slide 1: Title Page ---
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% --- Slide 2: Spectrograms (1 slide) ---
+\begin{frame}{Audio Spectrograms}
+  \begin{center}
+    \includegraphics[width=0.88\linewidth]{\detokenize{Audio Aliasing Spectrograms.png}}
+  \end{center}
+  \vspace{-0.2cm}
+  \footnotesize
+  \textbf{Top:} 200\,Hz sampled at 2000\,Hz \quad
+  \textbf{Middle:} 1800\,Hz sampled at 2000\,Hz \quad
+  \textbf{Bottom:} 1800\,Hz sampled at 4000\,Hz
+\end{frame}
+
+% --- Slide 3: Audio Comments (1 slide) ---
+\begin{frame}{Audio Aliasing -- Comments}
+  \begin{itemize}
+    \item \textbf{1800 Hz @ $f_s = 4000$ Hz (Nyquist satisfied, $f_N = 2000$ Hz):}
+          Spectrogram shows a clear band at 1800\,Hz. Playback sounds like a high-pitched tone.
+    \item \textbf{1800 Hz @ $f_s = 2000$ Hz (Nyquist violated, $f_N = 1000$ Hz):}
+          The tone exceeds the Nyquist limit and folds to
+          \[
+            f_{\text{alias}} = f_s - f = 2000 - 1800 = 200\ \text{Hz}.
+          \]
+          The spectrogram shows energy at 200\,Hz instead of 1800\,Hz.
+    \item \textbf{200 Hz @ $f_s = 2000$ Hz (Nyquist satisfied):}
+          Spectrogram shows a clean band at 200\,Hz.
+    \item \textbf{Key point:} The aliased 1800\,Hz signal is \emph{mathematically identical} to a true 200\,Hz signal in the discrete domain. The two are indistinguishable both to the ear and in the spectrogram. The original frequency is irrecoverably lost.
+  \end{itemize}
+\end{frame}
+
+% --- Slide 4: Image -- 4 images (1 slide) ---
+\begin{frame}{Image Aliasing -- $I(x,y)=\cos\!\big((x+2y)^2\big)$}
+  \begin{center}
+    \includegraphics[width=0.82\linewidth]{\detokenize{Image Aliasing.png}}
+  \end{center}
+  \vspace{-0.15cm}
+  \footnotesize
+  \textit{Top-left:} 2000$\times$2000 (original)\quad
+  \textit{Top-right:} 500$\times$500\quad
+  \textit{Bottom-left:} 150$\times$150\quad
+  \textit{Bottom-right:} 50$\times$50
+  \\\small(Undersampled images are displayed at the same physical size as the original to make the aliasing patterns visible.)
+\end{frame}
+
+% --- Slide 5: Image Comments (1 slide) ---
+\begin{frame}{Image Aliasing -- Comments}
+  \begin{itemize}
+    \item $I(x,y)=\cos\!\big((x+2y)^2\big)$ is a \textbf{2D chirp}: spatial frequency increases away from the line $x+2y=0$, so outer regions have far more detail than inner ones.
+    \item At $2000\times2000$ the pattern is faithfully represented. Central bands are wide; corner bands are dense but still correct.
+    \item As resolution drops, outer high-frequency regions exceed the spatial Nyquist limit and \textbf{fold} into low-frequency phantom structures -- \textbf{Moir\'{e} patterns}.
+    \item At $150\times150$ Moir\'{e} rings are clearly visible. At $50\times50$ the entire image is dominated by aliased patterns; the true structure is hidden.
+    \item This is the spatial counterpart of audio aliasing: a high spatial frequency masquerades as a false low spatial frequency, for the same reason -- insufficient sampling rate.
+  \end{itemize}
+\end{frame}
+
+% --- Slide 6: Video Comments -- Part 1 (wagon wheel) ---
+\begin{frame}{Video Aliasing -- The Wagon Wheel Effect}
+  \begin{itemize}
+    \item A video camera samples motion at a discrete frame rate (FPS), directly analogous to $f_s$ in audio.
+    \item A rotating wheel with evenly spaced spokes can be thought of as a periodic signal: the spoke angular position advances by $\Delta\theta = R/F$ (revolutions) per frame.
+    \item \textbf{If $\Delta\theta > \frac{1}{2N}$} (where $N$ is the number of spokes), the Nyquist condition is violated in the temporal domain.
+    \item Possible perceptual outcomes:
+      \begin{itemize}
+        \item Wheel appears to rotate \textbf{slower} than reality.
+        \item Wheel appears \textbf{stationary} (each frame looks identical).
+        \item Wheel appears to rotate \textbf{backwards}.
+      \end{itemize}
+    \item The viewer's brain reconstructs motion from frame differences. When frames are undersampled, the inferred motion is wrong -- exactly like hearing the wrong pitch in audio.
+  \end{itemize}
+\end{frame}
+
+% --- Slide 7: Video Comments -- Part 2 (negative frequency analogy) ---
+\begin{frame}{Video Aliasing -- Reverse Rotation and the Audio Analogy}
+  \begin{itemize}
+    \item Mathematically, reverse rotation corresponds to a \textbf{negative alias frequency}. When a spoke advances almost a full spoke-spacing between frames, it appears to have stepped back a tiny amount.
+    \item In audio, the alias of 1800\,Hz at $f_s=2000$\,Hz is $-200$\,Hz in the discrete spectrum. For real audio signals $X(-f)=X^*(f)$, so $-200$\,Hz sounds identical to $+200$\,Hz -- direction is inaudible.
+    \item In video, \textbf{direction is visible}. The negative alias frequency manifests as observable reverse rotation rather than simply a lower speed.
+    \item This makes the wagon wheel effect a uniquely powerful demonstration: it reveals the \emph{sign} of the alias that audio hides, making the folding-frequency mechanism concrete and intuitive.
+  \end{itemize}
+\end{frame}
+
+\end{document}

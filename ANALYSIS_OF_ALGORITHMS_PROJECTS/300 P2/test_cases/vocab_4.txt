@@ -1,0 +1,11 @@
+algorithms
+data
+sort
+search
+problems
+time
+complexity
+memory
+solutions
+patterns
+efficient

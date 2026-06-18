@@ -1,0 +1,8 @@
+=== CMPE362 HW4  Audio Filtering ===
+
+Loading cafe_sample.wav...
+  Sample rate : 44100 Hz
+  Duration    : 11.16 s
+  Samples     : 492156
+
+Generating original spectrogram...

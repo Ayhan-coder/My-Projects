@@ -1,0 +1,101 @@
+CMPE 49T Homework 3: Diagnostic Model Evaluation and Threshold Analysis
+
+Fall 2025
+
+In this assignment, you will assume the role of a data scientist collaborating with a hospital research team that is developing an automated diagnostic model for the early detection of heart disease. You are provided with a real dataset of de-identified patient records (processed.cleveland.data) and an initial notebook (00_generate_predictions.ipynb) that you will complete throughout this assignment.
+
+Your task is to build, train, and evaluate a simple logistic regression model from scratch. All computations must be performed using only numpy, pandas, and matplotlib. External machine learning libraries such as sklearn or statsmodels are not allowed. The model should predict the likelihood of cardiovascular disease based on clinical variables such as age, blood pressure, cholesterol, and ECG results, etc.
+
+Each student must generate a unique random seed using their own student ID number. This seed will determine the exact data split and random initialization of parameters, ensuring that results differ from one student to another. Your notebook will automatically produce your own personalized training and test sets based on this seed.
+
+---
+
+### Part I: Preparing the Dataset
+
+Begin your work in the file 00_generate_predictions.ipynb. Import the dataset and inspect its structure. Replace all missing values (represented by “?”) with NaN, convert the data to numeric form, and remove incomplete records. The diagnosis column should be converted into a binary target variable where 1 indicates the presence of disease and 0 indicates a healthy patient.
+
+After verifying the integrity of the data, divide the dataset into training and test subsets using the student-specific random seed. A 70%/30% split is recommended. Normalize all input features of both datasets using z-score normalization, applying the mean and standard deviation of the training set only (WHY??). Summarize your dataset by printing the mean and standard deviation of each feature before and after normalization.
+
+---
+
+### Part II: Training a Logistic Regression Model
+
+Implement logistic regression manually using NumPy operations. You can use the very basic model in the ipynb file or write down your own code which would yield better results (Recommended). Initialize the weight vector and bias term randomly as small values (using your student number). Compute predictions using the sigmoid function and update parameters using gradient descent to minimize binary cross-entropy loss.
+
+During training, log the loss value at each iteration and stop early if there is no improvement for five consecutive epochs. Plot the loss progression as a function of training iteration and save the figure as `training_loss.png`.
+
+At the end of training, save the learned parameters and standardized test data as NumPy arrays:
+
+* `weights_student.npy`
+* `bias_student.npy`
+* `X_test_student.npy`
+* `y_test_student.npy`
+
+These files will be used in your second notebook or `.py` file for evaluation.
+
+---
+
+### Part III: Evaluating Diagnostic Performance
+
+Create a new file. Load your saved model parameters and test data. For each test instance, compute the model’s predicted probability of disease. Each probability represents the model’s confidence that the patient is positive for heart disease.
+
+Start your evaluation with a single threshold of 0.8. Compute, **by hand**, the number of true positives, false positives, false negatives, and true negatives. From these values, calculate and show all intermediate steps for:
+
+* Accuracy
+* Precision
+* Recall (Sensitivity)
+* Specificity
+* F1-score
+
+Show this calculation explicitly in your report to demonstrate understanding of how each metric is derived. Create a 2x2 matrix and comment on your findings.
+
+After completing one manual example, automate the process for thresholds ranging from 0.00 to 1.00 in increments of 0.05. For each threshold, record all metrics and compile the results into a table. Include this table in your report and discuss how the trade-off between precision and recall evolves as the threshold changes. Identify which threshold range provides the best balance of sensitivity and specificity.
+
+---
+
+### Part IV: ROC and Precision–Recall Analysis
+
+Using your predicted probabilities, construct both the Receiver Operating Characteristic (ROC) and Precision–Recall (PR) curves manually. Compute the true positive and false positive rates at each threshold, and plot the curves using matplotlib. Save the resulting figures as `roc_curve.png` and `pr_curve.png`.
+
+Once the curves are generated, compute the area under each curve using the trapezoidal rule and report the resulting AUC-ROC and AUC-PR values. Next, calculate Youden’s J statistic, defined as
+
+[
+J = \text{Sensitivity} + \text{Specificity} - 1,
+]
+
+across thresholds from 0.00 to 1.00 (in steps of 0.01). Identify and report the threshold that maximizes (J). Discuss the clinical meaning of this optimal point.
+
+---
+
+### Part V: Cost-Sensitive Evaluation
+
+Extend your study to consider the economic consequences of model decisions. Assume that a false negative (missed diagnosis) costs $50,000 in delayed treatment, and a false positive (unnecessary alarm) costs $2,000 in unnecessary testing. For each threshold, compute the total expected cost:
+
+[
+\text{Total Cost} = 50{,}000 \times \text{FN} + 2{,}000 \times \text{FP}.
+]
+
+Plot total cost as a function of the decision threshold and save the figure. Identify a threshold that sounds reasonable for you and comment on your findings. Reflect on how the optimal threshold would shift if the relative costs of the two types of errors were reversed.
+
+---
+
+### Part VI: Effect of Class Imbalance
+
+To simulate population-level screening, imagine that the hospital expands the study by adding ten additional healthy individuals to the test set. Recalculate all metrics for this imbalanced dataset using the same thresholds. Compare the results with your original evaluation and discuss which metrics are sensitive to the class imbalance and which remain stable.
+
+Explain why recall and specificity are largely independent of class prevalence, while accuracy and precision are not.
+
+---
+
+### Part VII: Clinical Interpretation
+
+Conclude the assignment with a short discussion linking your quantitative findings to clinical practice. Based on your analyses, consider the following questions:
+
+* In a hospital setting, which error is more severe: a false positive or a false negative? Why?
+* Would you recommend the same threshold for population screening, high-risk patient monitoring, and pre-treatment confirmation? Why or why not?
+* Under what circumstances should sensitivity be prioritized over specificity?
+
+Your written response should connect the numerical results to real-world medical reasoning.
+
+Your final submission will consist of a single report in PDF format that integrates explanations, tables, and figures. Each section should include concise commentary on what the results reveal about the diagnostic model’s reliability and trade-offs. All computations and visualizations must be implemented manually using only the allowed Python libraries.
+

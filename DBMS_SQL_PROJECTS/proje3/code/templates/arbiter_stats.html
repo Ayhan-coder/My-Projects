@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Match Stats</title>
+</head>
+<body>
+    <h2>Match Statistics</h2>
+
+    <p>Total Rated Matches: {{ stats.match_count }}</p>
+    <p>Average Rating Given: {{ "%.2f"|format(stats.avg_rating or 0) }}</p>
+
+    <br><a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

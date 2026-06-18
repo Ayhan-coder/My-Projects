@@ -1,0 +1,299 @@
+<html>
+<head>
+    <link href="css/question.css" type="text/css" rel="stylesheet"/>
+    <title>Question (teaching.codes)</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>
+                Homework 6 <br><br>
+                <code>Image Processing</code>
+            </h1>
+            <div>
+                Please read <a href="ReadMe.html">important information</a> first.
+            </div>
+            <div id="page1">
+                <h2>Description</h2>
+                <p>
+                    In this homework, you will implement a small image processing application with various
+                    functionality.
+                    You will need to implement 6 functions that will be explained in more detail later in this document.
+                </p>
+                <h3>Your Task</h3>
+                <p> Outline of the task (each one of these 5 tasks will amount to 20 points, to a total of 100):
+                <ul>
+                    <li>
+                        You will need to implement two functions <code>read_imagefile(f)</code> and <code>write_imagefile(f,
+                        img_matrix)</code>
+                        that will allow you to read and write <code>.pgm</code> image file format (more on that later).
+                        <ul>
+                            <li>
+                                If you want to see your results, you can view <code>.pgm</code> image files using the
+                                free software GIMP or following website online: <a
+                                    href="https://bytes.usc.edu/~saty/tools/PGMViewer/viewer.html">PGMViewer</a>.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        You will need to implement <code>misalign(img_matrix)</code> function. This function should
+                        reverse odd numbered columns in the given image.
+                    </li>
+                    <li>
+                        You will need to implement <code>sort_columns(img_matrix)</code> function. This function should
+                        sort every column of the given image in ascending order from top the bottom.
+                    </li>
+                    <li>
+                        You will need to implement <code>sort_rows_border(img_matrix)</code> function.
+                        This function should sort every row in ascending order from left to right.
+                        However, sorting should be done independently respecting the borders (see the detailed
+                        explanation below).
+                    </li>
+                    <li>
+                        You will need to implement <code>convolution(img_matrix, kernel)</code> function.
+                        This function should apply the convolution operation to the <code>img_matrix</code> using the
+                        3x3 <code>kernel</code>(see the detailed explanation below).
+                    </li>
+                </ul>
+                </p>
+                <p>
+                <h3>Input</h3>
+                </p>
+                <p>
+                    User will provide three words separated by single whitespaces in the form <code>&lt;INPUT_FILE&gt;
+                    &lt;COMMAND&gt; &lt;OUTPUT_FILE&gt;</code>
+                </p>
+                <p>
+                    Input taking part is already handled:
+                <ul>
+                    <li>
+                        Variable <code>inp_filename</code>: non-empty word <code>&lt;INPUT_FILE&gt;</code>.
+                        Name of the input image file. Always will be a <code>.pgm</code> file.
+                    </li>
+                    <li>
+                        Variable <code>operation</code>: non-empty word <code>&lt;COMMAND&gt;</code>.
+                        Name of the command. Possible values: <code>misalign</code>, <code>sort_columns</code>, <code>sort_rows_border</code>,
+                        <code>highpass</code>
+                    </li>
+                    <li>
+                        Variable <code>out_filename</code>: non-empty word <code>&lt;OUTPUT_FILE&gt;</code>.
+                        Name of the output image file. Always will be a <code>.pgm</code> file.
+                    </li>
+                </ul>
+                </p>
+                <h3>Provided Code</h3>
+                When you look at the provided code, you will see that we are already taking the input from the user
+                and also at the bottom of the page we are already calling the related functions on given commands.
+                It would be beneficial to investigate these parts as it will give a clue on how the program supposed to
+                work.
+                <h3>.pgm Image File Format</h3>
+                <p>
+                    We will be dealing with grayscale images (no colors). Following is an example <code>.pgm</code> file
+                    content.<br/>
+                    <img src="fileformat.png"/><br/>
+                    First line is composed of 4 parts as: <code>&lt;CODE&gt; &lt;WIDTH&gt; &lt;HEIGHT&gt; &lt;MAX_LEVEL&gt;</code>
+                <ul>
+                    <li>
+                        <code>&lt;CODE&gt;</code> will always be <code>P2</code>
+                    </li>
+                    <li>
+                        <code>&lt;WIDTH&gt;</code> is the width of the image in pixels (positive integer).
+                    </li>
+                    <li>
+                        <code>&lt;HEIGHT&gt;</code> is the height of the image in pixels (positive integer).
+                    </li>
+                    <li>
+                        <code>&lt;MAX_LEVEL&gt;</code> is the value that corresponds to pure white color. In our
+                        examples, this will
+                        always be 255. This means that 0 means pure black and 255 means pure white whereas all the
+                        numbers in between are shades of gray linearly.
+                    </li>
+                </ul>
+                Remaining lines contain the image data. From top left corner to bottom right corner, every value
+                corresponds to the color of a pixel at its corresponding position.
+                Data will always be whitespace separated. Note that there are no extra whitespaces at the end of the
+                lines. Following is the image depicted by the example file given above (magnified):<br/>
+                <img src="feep.png"/><br/>
+                </p>
+                <h2>Function Definitions</h2>
+                <h4>read_imagefile(f)</h4>
+                <p>
+                    This function should assume <code>f</code> is an already opened <code>.pgm</code> image file
+                    following the format described above
+                    (check the first three lines under the <code># DO_NOT_EDIT_ANYTHING_BELOW_THIS_LINE</code>).
+                    It should read this file and convert it into a 2-D list of lists (of integers). Return value, let's
+                    say <code>img_matrix</code> should be this list.
+                    Given <code>i</code> and <code>j</code>, value of the <code>img_matrix[i][j]</code> should
+                    correspond to
+                    the <b>color value of the pixel</b> at the <code>i</code>'th row and <code>j</code>'th column of the
+                    image. This means that:
+                <ul>
+                    <li>
+                        If <code>i</code> is 0, we are referring to the first horizontal line of pixels (top part) of
+                        the image
+                        whereas if <code>i</code> is <code>&lt;HEIGHT&gt; - 1</code>. We are referring to the last
+                        horizontal line of pixels
+                        (bottom part) in the image.
+                    </li>
+                    <li>
+                        If <code>j</code> is 0, we are referring to the first vertical line of pixels (left part) of the
+                        image
+                        whereas if <code>j</code> is <code>&lt;WIDTH&gt; - 1</code>. We are referring to the last
+                        vertical line of pixels
+                        (right part) in the image.
+                    </li>
+
+                </ul>
+                Following is a short description of the content of <code>img_matrix</code>: <br/>
+                <img src="img_matrix.png"/>
+                </p>
+
+                <h4>write_imagefile(f, img_matrix)</h4>
+                <p>
+                    This function should assume f is an already opened <code>.pgm</code> file (opened in "w" mode)
+                    (check the last 3 lines of provided code).
+                    It should write to this file in such a way that it becomes a proper <code>.pgm</code> image file
+                    that contains the image described by <code>img_matrix</code>.
+                    It should follow the format of <code>.pgm</code> above.
+                </p>
+                <h4>misalign(img_matrix)</h4>
+                <p>
+                    This function should modify the <code>img_matrix</code> in such a way that the "odd numbered"
+                    columns of the image are reversed from top to bottom.
+                    It should return this resulting <code>img_matrix</code> after modification. Example:
+                </p>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td><b>Input</b></td>
+                        <td><b>animals.pgm</b></td>
+                        <td><b>animals_misalign.pgm</b></td>
+                    </tr>
+                    <tr>
+                        <td style="white-space:nowrap;">animals.pgm misalign animals_misalign.pgm</td>
+                        <td><img src="animals.png"/></td>
+                        <td><img src="animals_misalign.png"/></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <h4>sort_columns(img_matrix)</h4>
+                <p>
+                    This function should modify the <code>img_matrix</code> in such a way that the columns of the image
+                    are sorted from top to bottom, in ascending order.
+                    It should return this resulting <code>img_matrix</code> after modification. Example:
+                </p>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td><b>Input</b></td>
+                        <td><b>animals.pgm</b></td>
+                        <td><b>animals_sort_columns.pgm</b></td>
+                    </tr>
+                    <tr>
+                        <td style="white-space:nowrap;">animals.pgm sort_columns animals_sort_columns.pgm</td>
+                        <td><img src="animals.png"/></td>
+                        <td><img src="animals_sort_columns.png"/></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <h4>sort_rows_border(img_matrix)</h4>
+                <p>
+                    This function should modify the <code>img_matrix</code> in such a way that the rows of the image
+                    are sorted from left to right, in ascending order. However with one caveat, it should respect the
+                    borders.
+                    A border is a pure black (color value 0) separator between parts of the image.
+                    In the cases this function will be called, you can assume the only parts of the image that have the
+                    value
+                    0 will be the borders. Borders does not have to be 1 pixel thick. They can be wider than that.
+                    If there are no borders in the image, this is almost the same task as previous one, with rows
+                    instead of columns.
+                    It should return this resulting <code>img_matrix</code> after modification. Example:
+                </p>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td><b>Input</b></td>
+                        <td><b>animals.pgm</b></td>
+                        <td><b>animals_sort_rows_border.pgm</b></td>
+                    </tr>
+                    <tr>
+                        <td style="white-space:nowrap;">animals.pgm sort_rows_border animals_sort_rows_border.pgm</td>
+                        <td><img src="animals.png"/></td>
+                        <td><img src="animals_sort_rows_border.png"/></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <h4>convolution(img_matrix, kernel)</h4>
+                <p>
+                    This function should return the result of the convolution with zero padding
+                    between <code>img_matrix</code> and a 3 by 3 kernel <code>kernel</code>.
+                    It will be called when the <code>highpass</code> command is entered by the user.
+                    It will be called using a specific kernel (check the provided code relating to the
+                    <code>highpass</code> command.)
+                <h5>What is convolution?</h5>
+                <img src="conv.gif"/> (GIF by Dharmaraj D) <br/>
+                Imagine the <b>light blue</b> part is the <code>img_matrix</code> and it is extended by zeroes.
+                Operationally, imagine that
+                you are moving the kernel on this new extended matrix. As the kernel is moving (<b> region in dark
+                blue </b>)
+                you element-wise multiply the kernel and the values in <b>dark blue</b> region then sum all these values
+                up.
+                Result of this summation is the new value in your resulting matrix. For example, focus on the first
+                frame:<br/>
+                <img src="conv_frame.png"/> <br/>
+                This frame shows the calculation of the value in <code>[0][0]</code> position of the resulting matrix.
+                When we element-wise multiply the kernel and the <b>dark blue</b> region and sum the values we get the
+                expression
+                <code>(0 * 0) + (0 * -1) + (0 * 0) + (0 * -1) + (60 * 5) + (113 * -1) + (0 * 0) + (73 * -1) + (121 *
+                    0)</code>.
+                Which is equal to <code>114</code>. This means the value at <code>[0][0]</code> position of the
+                resulting matrix should be <code>114</code>.
+                <p>
+                    Some notes:
+                <ul>
+                    <li>At each position, if the resulting value is bigger than 255, you should set it to 255.</li>
+                    <li>At each position, if the resulting value is less than 0, you should set it to 0.</li>
+                    <li>If you make changes on <code>img_matrix</code> while you are still applying the convolution operation, results will be altered.
+                        Therefore, you should create a new matrix and fill it with the values you are calculating while not touching the <code>img_matrix</code> itself.</li>
+                </ul>
+                </p>
+                <br/>It should return this resulting matrix after modification. Example:
+                </p>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td><b>Input</b></td>
+                        <td><b>animals.pgm</b></td>
+                        <td><b>animals_highpass.pgm</b></td>
+                    </tr>
+                    <tr>
+                        <td style="white-space:nowrap;">animals.pgm highpass animals_highpass.pgm</td>
+                        <td><img src="animals.png"/></td>
+                        <td><img src="animals_highpass.png"/></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <h4>Notes:</h4>
+                You will not be provided a <code>Tester.py</code> as with other homeworks.
+                However, you are provided two example images and resulting images after each separate command.
+                These will be in the same folder as <code>Main.py</code>.
+                To check your results, you can open these image files in text editor and see the values.
+                Also you should check them by eye, using an image viewer tool that was suggested in the <b>Your Task</b> section.
+                <p>------------------------------------------------------------------</p>
+                <p>
+                    Check the examples for further clarification. Keep in mind that we will be grading your code not
+                    just based on these examples, but other cases as well, so try to write code which can handle all
+                    possible cases.
+                </p>
+                <p>
+                    <b>Warning:</b> You are not allowed to use any imports.
+                </p>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

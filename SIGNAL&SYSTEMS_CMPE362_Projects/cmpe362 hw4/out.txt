@@ -1,0 +1,17 @@
+=== CMPE362 HW4 – Advanced Audio Forensics ===
+
+Loaded cafe_sample.wav (11.16 seconds, 44100 Hz)
+
+Step 1: Automatically scanning spectrum for unnatural tonal peaks...
+  Detected suspicious narrow-band tones at:
+    - 1030.9 Hz (SNR magnitude: 14.3 dB)
+    - 2753.6 Hz (SNR magnitude: 13.3 dB)
+    - 17603.4 Hz (SNR magnitude: 12.4 dB)
+
+Step 2: Demodulating carriers and checking for Morse Code / OOK...
+► Analyzing 17603.4 Hz:
+  Pulses : 9  | Base unit ≈ 0.023 s
+  Raw    : ..   ..   -   -   -   ..
+  Decoded: I I T T T I
+
+Step 3: Generating precision high-contrast visual spectrograms...

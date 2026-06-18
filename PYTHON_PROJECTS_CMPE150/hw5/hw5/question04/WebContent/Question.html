@@ -1,0 +1,153 @@
+<html>
+<head>
+    <link href="css/question.css" type="text/css" rel="stylesheet"/>
+    <title>Question (teaching.codes)</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>
+                Question 4: <br><br>
+                <code>List Permutations of Size k</code>
+            </h1>
+            <div>
+                Please read <a href="ReadMe.html">important information</a> first.
+            </div>
+            <div id="page1">
+                <h2>Description</h2>
+                <p>
+                    In this problem, you need to implement the <code>permutations_of_size(my_list, k)</code> function
+                    <b>recursively</b>.
+                    This function should assume <code>my_list</code> is a list of strings.
+                    Return a list of all the <b>concatenated</b> size <code>k</code> permutations of the strings of
+                    <code>my_list</code>.
+                </p>
+                <p>
+
+                    For example: <br>
+                    if <code>my_list = ["1", "2", "3"]</code> and <code>k = 2</code> then,
+                    <code>permutations(my_list)</code> should return
+                    <code>["12", "13", "21", "23", "31", "32"]</code>
+                    Note that in the output printing part, we are already sorting the result of this function.
+                    Therefore, order of the resulting list does not matter.
+                </p>
+                <p>
+                    Input taking part is handled for you, predefined variables are:
+                <ul>
+                    <li>
+                        <code>words</code>: A non-empty list of non-empty words
+                    </li>
+                    <li>
+                        <code>k</code>: A positive integer less than or equal to the length of <code>words</code>
+                    </li>
+                </ul>
+                </p>
+                <p>
+                    Output printing part is handled for you as well, you only need to implement
+                    <code>permutations_of_size(my_list, k)</code>
+                    function <b> recursively.</b>.
+                <ul>
+                </ul>
+                </p>
+                <p>
+
+                    Following are true for every question:
+                <ul>
+                    <li>
+                        <b>Important Note 1:</b> If you don't implement it recursively, your grade will be 0 even if
+                        your outputs
+                        are correct.
+                    </li>
+
+                    <li>
+                        <b>Important Note 2:</b> Inside your recursive functions, you are <b>not allowed</b> to use:
+                        <ul>
+                            <li>
+                                Variables that have global keyword
+                            </li>
+                            <li>
+                                Variables that are defined outside the recursive function (unless specified otherwise)
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                </p>
+                <p>------------------------------------------------------------------</p>
+                <p>
+                    Check the examples for further clarification. Keep in mind that we will be grading your code not
+                    just based on these examples, but other cases as well, so try to write code which can handle all
+                    possible cases.
+                </p>
+
+                <b>Examples:</b>
+                <table>
+                    <tr class="header">
+                        <td>INPUT</td>
+                        <td>OUTPUT</td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap">
+                            a b c d<br>
+                            3
+                        </td>
+                        <td style="white-space: nowrap">
+                            abc<br>
+                            abd<br>
+                            acb<br>
+                            acd<br>
+                            adb<br>
+                            adc<br>
+                            bac<br>
+                            bad<br>
+                            bca<br>
+                            bcd<br>
+                            bda<br>
+                            bdc<br>
+                            cab<br>
+                            cad<br>
+                            cba<br>
+                            cbd<br>
+                            cda<br>
+                            cdb<br>
+                            dab<br>
+                            dac<br>
+                            dba<br>
+                            dbc<br>
+                            dca<br>
+                            dcb
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap">
+                            a1 b2 c3<br>
+                            3
+                        </td>
+                        <td style="white-space: nowrap">
+                            a1b2c3<br>
+                            a1c3b2<br>
+                            b2a1c3<br>
+                            b2c3a1<br>
+                            c3a1b2<br>
+                            c3b2a1
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap">
+                            a a a<br>
+                            1
+                        </td>
+                        <td style="white-space: nowrap">
+                            a<br>
+                            a<br>
+                            a
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

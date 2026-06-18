@@ -1,0 +1,15 @@
+Moving to 0-1
+Moving to 1-1
+Path is impassable!
+Moving to 0-1
+Moving to 0-2
+Moving to 0-3
+Moving to 1-3
+Objective 1 reached!
+Number 3 is chosen!
+Moving to 2-3
+Moving to 3-3
+Moving to 3-2
+Moving to 3-1
+Moving to 3-0
+Objective 2 reached!

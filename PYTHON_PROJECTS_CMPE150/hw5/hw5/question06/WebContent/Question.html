@@ -1,0 +1,119 @@
+<html>
+<head>
+    <link href="css/question.css" type="text/css" rel="stylesheet"/>
+    <title>Question (teaching.codes)</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>
+                Question 6: <br><br>
+                <code>No Stone Left Unturned</code>
+            </h1>
+            <div>
+                Please read <a href="ReadMe.html">important information</a> first.
+            </div>
+            <div id="page1">
+                <h2>Description</h2>
+                <p>
+                    In this problem, you need to implement the <code>any_empty(my_list)</code> function
+                    <b>recursively</b>.
+                    Assume that <code>my_list</code> might contain nested lists of <b>any depth</b>.
+                    This function should return <code>True</code> if <b>any one</b> of the lists inside <code>my_list</code> (or <code>my_list</code> itself) is empty and
+                    <code>False</code> otherwise.
+                </p>
+                <p>
+                <ul>
+                    <li>
+                        For example if <code>my_list = [1, 2, [3, 4], [[5, 7, 8], []]]</code>, <code>any_empty(my_list)</code> should return <code>True</code>.
+                    </li>
+                    <li>
+                        Don't forget that even though the user enters the input as a string, we are converting it to a list for you. This means that the <code>type</code> of the <code>my_list</code> parameter is a <code>list</code>.
+                    </li>
+                </ul>
+                </p>
+                <p>
+                    Input taking part is handled for you, predefined variables are:
+                <ul>
+                    <li>
+                        <code>ls</code>: Any list that user inputs.
+                    </li>
+                </ul>
+                </p>
+                <p>
+                    Output printing part is handled for you as well, you only need to implement
+                    <code>any_empty(my_list)</code>
+                    function <b> recursively.</b>.
+                <ul>
+                </ul>
+                </p>
+                <p>
+
+                    Following are true for every question:
+                <ul>
+                    <li>
+                        <b>Important Note 1:</b> If you don't implement it recursively, your grade will be 0 even if
+                        your outputs
+                        are correct.
+                    </li>
+
+                    <li>
+                        <b>Important Note 2:</b> Inside your recursive functions, you are <b>not allowed</b> to use:
+                        <ul>
+                            <li>
+                                Variables that have global keyword
+                            </li>
+                            <li>
+                                Variables that are defined outside the recursive function (unless specified otherwise)
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                </p>
+                <p>------------------------------------------------------------------</p>
+                <p>
+                    Check the examples for further clarification. Keep in mind that we will be grading your code not
+                    just based on these examples, but other cases as well, so try to write code which can handle all
+                    possible cases.
+                </p>
+
+                <b>Examples:</b>
+                <table>
+                    <tr class="header">
+                        <td>INPUT</td>
+                        <td>OUTPUT</td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap">
+                            [[[[[[[[[[[]]]]]]]]]]]
+                        </td>
+                        <td style="white-space: nowrap">
+                            True
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap">
+                            [1, [1, 2], [1, [1, 2], [1, 2, 3]], [[[2, 3]]]]
+                        </td>
+                        <td style="white-space: nowrap">
+                            False
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="white-space: nowrap">
+                            [1, 2, [3, 4], [[5, 7, 8], []]]
+                        </td>
+                        <td style="white-space: nowrap">
+                            True
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

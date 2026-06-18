@@ -1,0 +1,169 @@
+<html>
+<head>
+    <link href="css/question.css" type="text/css" rel="stylesheet"/>
+    <title>Question (teaching.codes)</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>
+                Homework 4 <br><br>
+                <code>G-Doku (100 points)</code>
+            </h1>
+            <div>
+                Please read <a href="ReadMe.html">important information</a> first.
+            </div>
+            <div id="page1">
+                <h2>Description</h2>
+                <p>
+                    In this problem, you will write a program that lets you play a puzzle game called G-Doku.
+                    G-Doku is a generalized version of the well known puzzle game Sudoku.
+                </p>
+                <p> Rules of the puzzle:
+                <ul>
+                    <li>
+                        Puzzle board should be considered in terms of boxes, columns, rows.
+                    </li>
+                    <li>
+                        In each cell, either a positive number is written or it's empty. For the purposes of this
+                        homework, number 0 means it's an empty cell.
+                    </li>
+                    <li>
+                        Initially, the puzzle board starts out empty. Therefore, in almost all the cases, there will be
+                        multiple solutions.
+                    </li>
+                    <li>
+                        In each box, column or row, the numbers in that box, column or row should sum up to a
+                        predetermined positive number n.
+                    </li>
+					<li>
+						Unlike Sudoku, Numbers <b>can</b> repeat in a column, row or a box.
+					</li>
+                    <li>
+                        Size of the puzzle is k^2 by k^2. Meaning the lengths of the sides are a square number. Also,
+                        the boxes are a k by k square. Just like Sudoku.
+                    </li>
+                </ul>
+                </p>
+                <p>
+
+                </p>
+                <p>
+                    Input taking part is already handled:
+                <ul>
+                    <li>
+                        Variable <code>k</code>: Given <code>k</code>, size of the puzzle board should be a
+                        <code>k^2</code> by <code>k^2</code> square. You can assume it will always be a positive integer.
+                    </li>
+                    <li>
+                        Variable <code>n</code>: In the solution of the puzzle, sum of the numbers written
+						in a box, column or a row should add up to <code>n</code>. This number will always be integer and will be bigger than or equal to <code>k^2</code>
+                    </li>
+                    <li>
+                        Variable <code>board</code>: This variable is a list of lists whose values are initially set to 0.
+						It represents the current board of the game. For example, value of board[i][j] represents the
+						number written on i'th row j'th column of the puzzle. Therefore, its dimensions are <code>k^2</code> by <code>k^2</code>.
+                    </li>
+                </ul>
+				<h2>Your Task</h2>
+				<p> Your task in this homework is <b>only</b> to implement the functions
+					<code>print_board()</code>,  <code>make_move(mv)</code> and <code>verify_board()</code>
+                <ul>
+					<li>If you look at the bottom part of the given Main.py you will see that there is a while loop that calls these functions. This loop lets the player play the game using the console.</li>
+					<li>Player have two commands:
+						<ul>
+							<li>
+								If players enters the input <code>move &lt;box_num&gt; &lt;box_pos&gt; &lt;value&gt;</code>.
+								After changing the number at the position <code> &lt;box_pos&gt;</code> in the box <code> &lt;box_num&gt;</code> to <code> &lt;value&gt;</code>
+								one of three things can happen:
+								<ul>
+									<li>
+										If the resulting board is a solution, final board is printed and game ends.
+									</li>
+									<li>
+										If the resulting board is not a solution but a valid board (meaning no row, box or column adds up to a number bigger than n), board is updated and printed. Program waits for the next move.
+									</li>
+									<li>
+										If the resulting board is an invalid board, change is reverted and the board before this move is printed. Program waits for the next move.
+									</li>
+								</ul>
+							</li>
+							<li>
+								If the player enters the input <code>end</code>. Program terminates.
+							</li>
+						</ul>
+					</li>
+                </ul>
+				</p>
+				<h2>Function Definitions</h2>
+				<h4>print_board()</h4>
+				<p>Purpose of this function is to print the values in the variable <code>board</code> in a well formatted fashion.
+					In each cell, values should be printed with whitespace-padding, therefore usage of f-strings is recommended.
+                    If the value at that cell is 0, you should print whitespace instead of 0 as it is an empty cell.
+					Number of characters in each cell should be same as the number of digits of n. For example, for a puzzle where k = 3 and n = 125, an example board should be printed like this:
+					<br><img src="ex_print1.png" /> <br>
+                    Since n has 3 digits, in each cell there are 3 characters, even if they are whitespace. Check the examples for other cases.
+
+				</p>
+
+				<h4>make_move(mv)</h4>
+                This function accepts a single parameter <code>mv</code>. Purpose of this function is to change values in the variable <code>board</code> given the parameter <code>mv</code>.
+                <ul>
+                    <li>
+                        <code>mv</code> should be assumed to be a tuple of three values:
+                    </li>
+                    <li>
+                        First value represents the box number. You can assume it will always be between 0 and (k^2 - 1) both included.
+                    </li>
+                    <li>
+                        Second value represents position in that box. You can assume it will always be between 0 and (k^2 - 1) both included.
+                    </li>
+                    <li>
+                        Third number represents the new value to be put in the cell at that position.
+                    </li>
+                </ul>
+                After updating the <code>board</code>, this function should return the <b>previous value</b> at the cell it just updated.
+                <h4>verify_board()</h4>
+                Purpose of this function is to make summations on the board and check if rows, columns and boxes are valid. It should return either one of these three values:
+                <ul>
+                    <li>
+                        If the board is invalid, meaning the numbers in at least one of the rows, columns or boxes sum up to a number bigger than n, it should return -1.
+                    </li>
+                    <li>
+                        If the board is valid but unsolved, meaning the numbers in at least one of the rows, columns or boxes sum up to a number less than n, it should return 0.
+                    </li>
+                    <li>
+                        If the board is solved, meaning the numbers in each row, column or box sum up to exactly n, it should return 1.
+                    </li>
+                </ul>
+                <h2>Extra guides:</h2>
+                Boxes are numbered. Consider the case when k = 3 (meaning it's same as a Sudoku board.). Following graphic depicts the box numbering:
+                <br><img src="ex_boxnum.png" width="300px" /><br>
+                In each box, cells are numbered using the same rule. Again, assume k = 3 and we zoom into the box number 0 in the above graphic, cell numberings are as follows:
+                <br><img src="ex_boxpos.png" width="100px" /> <br>
+                Note that these values depend on the number k. More precisely, they go from 0 to k^2 - 1 both included.
+                This is the way "move" command in the console finds the cell it should update. For example <code>move 2 4 5</code> command would write the value 5 to the box number 2 and cell number 4.
+                <br>
+                <b>Important suggestion:</b> Since the code provided in Main.py uses all three functions that you need to implement, you won't be able to test them by yourself separately.
+                Therefore, it is suggested that you work on a separate file, test your functions and code there and once you are sure, put them in Main.py.
+                <p>------------------------------------------------------------------</p>
+                <p>
+                    Check the examples for further clarification. Keep in mind that we will be grading your code not
+                    just based on these examples, but other cases as well, so try to write code which can handle all
+                    possible cases.
+                </p>
+                <p>
+                    <b>Warning:</b> You are not allowed to use any imports and any topics that haven't been covered this
+                    semester.
+
+
+                </p>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

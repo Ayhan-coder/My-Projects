@@ -1,0 +1,20 @@
+<h2>Assign a Player to a Match</h2>
+<form method="POST">
+    <label for="match_id">Select Match:</label>
+    <select name="match_id" required>
+        {% for match in matches %}
+            <option value="{{ match.match_id }}">
+                Match {{ match.match_id }} - {{ match.white_team_name }} vs {{ match.black_team_name }} on {{ match.formatted_date }}
+            </option>
+        {% endfor %}
+    </select><br><br>
+
+    <label for="player">Select Player:</label>
+    <select name="player" required>
+        {% for p in players %}
+            <option value="{{ p.player_username }}">{{ p.player_username }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <input type="submit" value="Assign Player">
+</form>
