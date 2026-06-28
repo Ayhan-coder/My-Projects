@@ -28,10 +28,12 @@ If you only have a few minutes, these are the best places to start:
 
 ### Systems & low-level
 - **Operating Systems (CMPE322)**: [OPERATING_SYSTEM_PROJECTS](OPERATING_SYSTEM_PROJECTS/)
-  - Example: Project 2 includes a C shared library + tests + Makefile; see
-    [README_STRUCTURE.md](OPERATING_SYSTEM_PROJECTS/322%20P2/322p2/README_STRUCTURE.md)
+  - Example: Project 2 includes a C shared library + tests + Makefile; see [README_STRUCTURE.md](OPERATING_SYSTEM_PROJECTS/322%20P2/322p2/README_STRUCTURE.md)
 - **Computer Organization labs (CMPE344)**: [COMPUTER_ORGANIZATION_LABS](COMPUTER_ORGANIZATION_LABS/)
-- **C/C++/Assembly**: [LOWLEVELLANGUAGE_PROJECTS_C,C++,ASSEMBLY](LOWLEVELLANGUAGE_PROJECTS_C,C%2B%2B,ASSEMBLY/)
+- **System Programming (C/C++/Assembly)**: [System Programming_PROJECTS_C,C++,ASSEMBLY](System%20Programming_PROJECTS_C,C%2B%2B,ASSEMBLY/)
+
+### Distributed systems
+- **Distributed Systems (CMPE476)**: [DISTRIBUTED_SYSTEMS_CMPE476](DISTRIBUTED_SYSTEMS_CMPE476/)
 
 ### Algorithms & data structures
 - **Analysis of Algorithms (CMPE300)**: [ANALYSIS_OF_ALGORITHMS_PROJECTS](ANALYSIS_OF_ALGORITHMS_PROJECTS/)
@@ -41,22 +43,31 @@ If you only have a few minutes, these are the best places to start:
 - **DBMS / SQL projects**: [DBMS_SQL_PROJECTS](DBMS_SQL_PROJECTS/)
 - **Statistics projects (Python + reports)**: [STATISTICS_PROJECTS](STATISTICS_PROJECTS/)
 
-### Programming languages / coursework
+### System simulation & modeling
+- **System Simulation (IE306)**: [SYSTEM_SIMULATION_IE306_projects](SYSTEM_SIMULATION_IE306_projects/)
+- **Operations Research (IE310)**: [OPERATION_RESEARCH_PROJECTS_IE310](OPERATION_RESEARCH_PROJECTS_IE310/)
+
+### Computational science & simulations
+- **Particle-Based Simulations (CMPE49G)**: [PARTICLE_BASED_SIMULATIONS_CMPE_49G](PARTICLE_BASED_SIMULATIONS_CMPE_49G/)
+
+### Signal processing
+- **Signals & Systems (CMPE362)**: [SIGNAL&SYSTEMS_CMPE362_Projects](SIGNAL%26SYSTEMS_CMPE362_Projects/)
+
+### AI & healthcare
+- **AI in Healthcare (CMPE49T)**: [AI_IN_HEALTCARE_CMPE49T](AI_IN_HEALTCARE_CMPE49T/)
+  - HW1 environment/setup: [HW1 README](AI_IN_HEALTCARE_CMPE49T/HW1/README.md)
+  - HW3 evaluation/model report: [HW3 README](AI_IN_HEALTCARE_CMPE49T/HW3/README.md)
+
+### Programming languages & coursework
 - **Java OOP (CMPE160)**: [JAVA_OOP_CMPE160](JAVA_OOP_CMPE160/)
 - **Python (CMPE150)**: [PYTHON_PROJECTS_CMPE150](PYTHON_PROJECTS_CMPE150/)
-- **Prolog (CMPE260)**: [CMPE 260-PROLOG](CMPE%20260-PROLOG/)
+- **Prolog (CMPE260)**: [PRINCIPLES_OF_PROGRAMMING_LANGUAGES_CMPE 260-PROLOG](PRINCIPLES_OF_PROGRAMMING_LANGUAGES_CMPE%20260-PROLOG/)
 
 ### HCI / UI
-- **Human-Computer Interaction (CMPE496)**: [HUMAN_COMPUTER_INTERACTİON_PROJECTS](HUMAN_COMPUTER_INTERACT%C4%B0ON_PROJECTS/)
+- **Human-Computer Interaction (CMPE496)**: [HUMAN_COMPUTER_INTERACTİON_PROJECTS_CMPE496](HUMAN_COMPUTER_INTERACT%C4%B0ON_PROJECTS_CMPE496/)
 
 ### Entrepreneurship / business
-- **Startup & entrepreneurship work**: [Entrepreneurship_PROJECT&STARTUP](Entrepreneurship_PROJECT&STARTUP/)
-
-### Other
-- **Operations Research**: [OPERATION_RESEARCH_PROJECTS](OPERATION_RESEARCH_PROJECTS/)
-- **49T course homeworks**: [49T Project](49T%20Project/)
-  - HW1 environment/setup: [HW1 README](49T%20Project/HW1/README.md)
-  - HW3 evaluation/model report: [HW3 README](49T%20Project/HW3/README.md)
+- **Startup & entrepreneurship work (AD432)**: [Entrepreneurship_PROJECT&STARTUP_AD432](Entrepreneurship_PROJECT%26STARTUP_AD432/)
 
 ## Quick run tips
 
